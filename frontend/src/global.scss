@@ -1,0 +1,31 @@
+// Zentrale SCSS-Datei für globale Styles und Variablen
+@use './variables.scss' as *;
+
+body {
+  font-family: 'Inter', Arial, sans-serif;
+  background: $background;
+  color: $text;
+  margin: 0;
+  min-width: 1200px;
+}
+
+.layout__main {
+  max-width: 2200px;
+  margin: 0 auto;
+  background: $surface;
+  border-radius: 18px;
+  box-shadow: 0 4px 32px 0 rgba(167,139,250,0.08);
+  padding: 3rem 4rem;
+  min-height: 70vh;
+}
+
+.layout__header {
+  max-width: 2200px;
+  margin: 0 auto 2rem auto;
+  border-radius: 18px 18px 0 0;
+  box-shadow: 0 2px 16px 0 rgba(167,139,250,0.10);
+  background: $primary;
+  color: $primary-dark;
+  letter-spacing: 0.08em;
+  text-shadow: 0 2px 8px rgba(167,139,250,0.10);
+}

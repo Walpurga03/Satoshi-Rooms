@@ -18,6 +18,9 @@ yarn-error.log*
 .idea/
 *.swp
 
+# Projektfortschritt (lokal)
+FORTSCHRITT.md
+
 # Env
 .env
 .env.*

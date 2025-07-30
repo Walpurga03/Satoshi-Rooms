@@ -1,0 +1,173 @@
+@use 'sass:color';
+@use '../variables.scss' as *;
+
+.key-management .key-box {
+  background: $background;
+  border: 2px solid $primary;
+  border-radius: 14px;
+  padding: 1.2rem 1.5rem 1.3rem 1.5rem;
+  margin-top: 2.2rem;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 2px 12px 0 rgba(167,139,250,0.10);
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  max-width: 100%;
+}
+
+.key-management .key-label-row {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  margin-bottom: 0.2em;
+}
+
+.key-management .key-value {
+  font-family: 'Fira Mono', 'Consolas', 'Menlo', monospace;
+  font-size: 1.08em;
+  background: $surface;
+  color: $accent;
+  padding: 0.4em 0.8em;
+  border-radius: 8px;
+  word-break: break-all;
+  letter-spacing: 0.04em;
+  line-height: 1.7;
+  margin-bottom: 0.5em;
+}
+
+.key-management .copy-btn {
+  background: $secondary;
+  color: $primary;
+  border: 1.5px solid $primary;
+  border-radius: 6px;
+  padding: 0.25em 0.9em;
+  font-size: 0.98em;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 0.5em;
+  transition: background 0.18s, color 0.18s, border 0.18s;
+}
+.key-management .copy-btn:hover {
+  background: $primary;
+  color: $primary-dark;
+}
+
+.key-management {
+  background: $surface;
+  border-radius: 18px;
+  box-shadow: 0 4px 32px 0 rgba(167,139,250,0.10);
+  padding: 3rem 3rem 2.5rem 3rem;
+  max-width: 600px;
+  margin: 3rem auto;
+  color: $text;
+  font-size: 1.1rem;
+}
+
+.key-management .tab-btn {
+  background: $secondary;
+  border-radius: 10px 10px 0 0;
+  padding: 1rem 2.2rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+  margin-bottom: -2px;
+  margin-right: 0.5rem;
+  letter-spacing: 0.03em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  box-shadow: none;
+  position: relative;
+  z-index: 2;
+}
+.key-management .tab-btn.active {
+  background: $primary;
+  color: $primary-dark;
+  border-bottom: 2.5px solid $surface;
+  z-index: 3;
+}
+.key-management .tab-btn:disabled {
+  opacity: 1;
+  cursor: pointer;
+}
+.key-management .tab-btn:focus,
+.key-management .tab-btn:focus-visible {
+  outline: 2.5px solid $accent;
+  outline-offset: 2px;
+}
+.key-management .tab-btn:hover:not(.active) {
+  background: color.adjust($secondary, $lightness: 8%);
+  color: $primary;
+}
+
+
+.key-management .action-btn {
+  background: $primary;
+  color: $primary-dark;
+  border: none;
+  border-radius: 8px;
+  padding: 1rem 2.2rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  margin-bottom: 0.5rem;
+  margin-right: 1rem;
+  box-shadow: 0 2px 8px 0 rgba(167,139,250,0.08);
+  letter-spacing: 0.03em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+}
+.key-management .action-btn:focus,
+.key-management .action-btn:focus-visible {
+  outline: 2.5px solid $primary;
+  outline-offset: 2px;
+}
+.key-management .action-btn:hover:not(:disabled) {
+  background: color.adjust($primary, $lightness: 8%);
+  color: $primary-dark;
+  box-shadow: 0 4px 16px 0 rgba(167,139,250,0.13);
+}
+.key-management .action-btn:disabled {
+  background: $secondary;
+  color: $text-muted;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.key-management input[type="text"] {
+  background: $background;
+  color: $text;
+  border: 2px solid $primary;
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+  font-size: 1.1rem;
+  width: 100%;
+  max-width: 420px;
+  margin-bottom: 0.7rem;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+.key-management input[type="text"]:focus {
+  border: 2.5px solid $accent;
+  box-shadow: 0 2px 8px 0 rgba(246,193,119,0.10);
+  outline: none;
+}
+
+.key-management code {
+  background: $background;
+  color: $accent;
+  padding: 0.3em 0.7em;
+  border-radius: 8px;
+  font-size: 1.08em;
+  word-break: break-all;
+  font-family: 'Fira Mono', 'Consolas', 'Menlo', monospace;
+}
+
+.key-management b {
+  color: $primary;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}

@@ -1,0 +1,113 @@
+@use 'sass:color';
+@use '../variables.scss' as *;
+
+.relay-suggestions {
+  margin-bottom: 1.1rem;
+  color: $text-muted;
+  font-size: 1.01em;
+}
+.relay-suggestion-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  margin-top: 0.4em;
+}
+.suggestion-btn {
+  background: $secondary;
+  color: $primary;
+  border: 1.5px solid $primary;
+  border-radius: 6px;
+  padding: 0.18em 1.1em;
+  font-size: 0.98em;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, border 0.18s;
+}
+.suggestion-btn:hover:not(:disabled) {
+  background: $primary;
+  color: $primary-dark;
+}
+.suggestion-btn:disabled {
+  background: $background;
+  color: $text-muted;
+  border-style: dashed;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+.relay-management {
+  background: $surface;
+  border-radius: 18px;
+  box-shadow: 0 4px 32px 0 rgba(167,139,250,0.10);
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  max-width: 600px;
+  margin: 2.5rem auto;
+  color: $text;
+  font-size: 1.08rem;
+}
+
+.relay-management h2 {
+  color: $primary;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.relay-input-row {
+  display: flex;
+  gap: 0.7rem;
+  margin-bottom: 1.5rem;
+}
+
+.relay-input-row input[type="text"] {
+  background: $background;
+  color: $text;
+  border: 2px solid $primary;
+  border-radius: 10px;
+  padding: 0.9rem 1.1rem;
+  font-size: 1.08rem;
+  flex: 1;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+.relay-input-row input[type="text"]:focus {
+  border: 2.5px solid $accent;
+  box-shadow: 0 2px 8px 0 rgba(246,193,119,0.10);
+  outline: none;
+}
+
+.relay-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.relay-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: $background;
+  border: 1.5px solid $primary;
+  border-radius: 8px;
+  padding: 0.7em 1.1em;
+  margin-bottom: 0.7em;
+  font-family: 'Fira Mono', 'Consolas', 'Menlo', monospace;
+  font-size: 1.04em;
+}
+.relay-empty {
+  color: $text-muted;
+  font-style: italic;
+  padding: 0.7em 0;
+}
+.remove-btn {
+  background: none;
+  color: $primary;
+  border: none;
+  font-size: 1.2em;
+  cursor: pointer;
+  margin-left: 1em;
+  border-radius: 4px;
+  padding: 0.1em 0.5em;
+  transition: background 0.18s, color 0.18s;
+}
+.remove-btn:hover {
+  background: $primary;
+  color: $primary-dark;
+}

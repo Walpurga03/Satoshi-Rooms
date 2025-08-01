@@ -1,7 +1,7 @@
 @use '../styles/variables.scss' as *;
 
 
-// Collapse Styles wie beim Profil
+// Nur noch tatsächlich genutzte Styles:
 .relayStatusRoot {
   width: 100%;
   display: flex;
@@ -9,67 +9,53 @@
   align-items: center;
   box-sizing: border-box;
 }
-.collapseHeader {
+
+.relayStatusCard {
+  background: linear-gradient(120deg, $surface 60%, $background 100%);
+  border-radius: 22px;
+  box-shadow: 0 4px 32px 0 rgba(167,139,250,0.10);
+  padding: 2.6rem 3.6rem 2.6rem 3.6rem;
+  color: $text;
   width: $card-width;
+  margin-bottom: 2.5rem;
   display: flex;
-  align-items: center;
-  margin-bottom: 0.2rem;
-  cursor: pointer;
-  user-select: none;
-  border-radius: 18px;
-  transition: background 0.18s;
+  flex-direction: column;
+  align-items: flex-start;
+  border: 1.5px solid $primary;
+  transition: box-shadow 0.2s, border 0.2s;
   box-sizing: border-box;
-  &:hover, &:focus {
-    background: rgba($primary, 0.08);
-  }
 }
-.collapseHeadline {
+
+.relayList {
+  margin-top: 1.2rem;
+  color: $text-muted;
+  font-size: 1.08em;
   width: 100%;
-  display: flex;
-  align-items: center;
-  font-size: 2.1rem;
-  font-weight: 800;
-  color: $primary;
-  letter-spacing: 0.01em;
-  gap: 0.7rem;
-  margin: 0;
-  padding: 0.5rem 0 0.5rem 0.5rem;
-  border-radius: 18px;
-  transition: color 0.18s;
+  padding-left: 0.5rem;
 }
-.collapseArrow {
-  display: inline-block;
-  width: 1.5em;
-  height: 1.5em;
-  margin-left: 0.2em;
-  background: none;
-  border: none;
-  pointer-events: none;
-  position: relative;
-  &::before {
-    content: '';
-    display: block;
-    width: 0.7em;
-    height: 0.7em;
-    border-right: 3px solid $primary;
-    border-bottom: 3px solid $primary;
-    border-radius: 2px;
-    transform: rotate(45deg);
-    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
-    position: absolute;
-    left: 0.35em;
-    top: 0.25em;
-  }
+
+.relayList li {
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+  font-family: 'Fira Mono', 'Consolas', monospace;
 }
-[aria-expanded='true'] .collapseArrow::before {
-  transform: rotate(135deg);
-  top: 0.45em;
+
+.statusVerbunden {
+  color: #7ee787;
+  font-weight: 600;
 }
-.collapseContent {
-  width: $card-width;
-  transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1);
-  overflow: hidden;
-  box-sizing: border-box;
+.statusPruefe {
+  color: $text;
+  font-weight: 600;
+}
+.statusFehler {
+  color: #e57373;
+  font-weight: 600;
+}
+
+.statusLabel {
+  margin-left: 12px;
+  font-size: 1em;
 }
 
 // Box-sizing für Card

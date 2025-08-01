@@ -1,8 +1,10 @@
 
+
 import { useEffect, useState } from 'react';
 import { SimplePool } from 'nostr-tools';
 import type { Filter } from 'nostr-tools';
 import styles from './GroupInfo.module.scss';
+
 
 type Props = {
   relay: string;
@@ -38,7 +40,6 @@ const PROFILE_RELAYS = [
 ];
 
 export function GroupInfo({ relay }: Props) {
-  const [open, setOpen] = useState(true);
   const [messages, setMessages] = useState<GroupMessage[]>([]);
   const [userProfiles, setUserProfiles] = useState<Record<string, UserProfile>>({});
   const [uniquePubkeys, setUniquePubkeys] = useState<string[]>([]);
@@ -160,33 +161,12 @@ export function GroupInfo({ relay }: Props) {
 
   return (
     <div className={styles.groupProfileRoot}>
-      <div
-        className={styles.collapseHeader}
-        onClick={() => setOpen((v) => !v)}
-        role="button"
-        tabIndex={0}
-        aria-expanded={open}
-        aria-label={open ? 'Gruppenbereich zuklappen' : 'Gruppenbereich aufklappen'}
-        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setOpen(v => !v); }}
-        style={{ cursor: 'pointer', userSelect: 'none' }}
-      >
-        <h2 className={styles.collapseHeadline}>
-          Gruppen Information
-          <span className={styles.collapseArrow} aria-hidden="true"/>
-        </h2>
-      </div>
-      <div
-        className={styles.collapseContent}
-        style={{ maxHeight: open ? 2000 : 0, overflow: 'hidden', transition: 'max-height 0.35s cubic-bezier(0.4,0,0.2,1)' }}
-        aria-hidden={!open}
-      >
-        <div className={styles.sectionCard}>
-          <div><span className={styles.groupInfoLabel}>Gruppen-ID:</span> {groupId}</div>
-          <div><span className={styles.groupInfoLabel}>Relay:</span> {groupRelay || relay}</div>
-          <div><span className={styles.groupInfoLabel}>Nachrichten gefunden:</span> {messages.length}</div>
-          <div><span className={styles.groupInfoLabel}>Erkannte User:</span> {uniquePubkeys.length}</div>
-          <div><span className={styles.groupInfoLabel}>Profile geladen:</span> {Object.keys(userProfiles).length}</div>
-        </div>
+      <div className={styles.sectionCard}>
+        <div><span className={styles.groupInfoLabel}>Gruppen-ID:</span> {groupId}</div>
+        <div><span className={styles.groupInfoLabel}>Relay:</span> {groupRelay || relay}</div>
+        <div><span className={styles.groupInfoLabel}>Nachrichten gefunden:</span> {messages.length}</div>
+        <div><span className={styles.groupInfoLabel}>Erkannte User:</span> {uniquePubkeys.length}</div>
+        <div><span className={styles.groupInfoLabel}>Profile geladen:</span> {Object.keys(userProfiles).length}</div>
       </div>
     </div>
   );

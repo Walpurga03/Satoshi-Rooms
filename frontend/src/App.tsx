@@ -1,4 +1,4 @@
-
+import { Section } from './components/Section';
 import { UserProfile } from './components/UserProfile';
 import { RelayStatus } from './components/RelayStatus';
 import { GroupInfo } from './components/GroupInfo';
@@ -17,12 +17,15 @@ function App() {
   return (
     <div className="appContainer">
       <h1 className="headline">Satoshi Room</h1>
-      <UserProfile npub={npub} relays={relays} />
-      <RelayStatus relays={relays} />
-      <GroupInfo relay={groupRelay} />
-      <AktiveGruppenmitglieder relay={groupRelay} />
-      <LetzteNachrichten relay={groupRelay} />
-      
+      <Section title="User Profil">
+        <UserProfile npub={npub} relays={relays} />
+      </Section>
+      <Section title="Relay Status">
+        <RelayStatus relays={relays} />
+      </Section>
+      <Section title="Group Info">
+        <GroupInfo relay={groupRelay} />
+      </Section>
     </div>
   );
 }

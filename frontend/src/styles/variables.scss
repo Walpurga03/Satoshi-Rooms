@@ -1,0 +1,16 @@
+// Beispiel für SCSS-Variablen
+$primary: #a78bfa; // Nostr Lila
+$primary-dark: #232136; // Dunkles Violett
+$secondary: #393552; // Sekundär, dunkler Hintergrund
+$accent: #f6c177; // Dezenter Akzent (z.B. für Buttons)
+$background: #232136; // Sehr dunkles Violett
+$surface: #393552; // Flächen
+$text: #e0def4; // Helles Textweiß
+$text-muted: #6e6a86;
+
+$shadow-main: 0 4px 32px 0 rgba(167,139,250,0.08);
+$shadow-header: 0 2px 16px 0 rgba(167,139,250,0.10);
+$text-shadow-header: 0 2px 8px rgba(167,139,250,0.10);
+
+// Einheitliche Kartenbreite für alle Cards
+$card-width: 1156px;

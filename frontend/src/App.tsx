@@ -1,14 +1,29 @@
-import Layout from './components/Layout';
-import KeyManagement from './components/KeyManagement';
-import RelayManagement from './components/RelayManagement';
+
+import { UserProfile } from './components/UserProfile';
+import { RelayStatus } from './components/RelayStatus';
+import { GroupInfo } from './components/GroupInfo';
+import { AktiveGruppenmitglieder } from './components/AktiveGruppenmitglieder';
+import { LetzteNachrichten } from './components/LetzteNachrichten '; // Fix: match filename with space
+
+import './styles/index.scss';
+
 
 function App() {
+  const npub = import.meta.env.VITE_USER_NPUB;
+  const relays = (import.meta.env.VITE_NOSTR_RELAY || '').split(',').map((r: string) => r.trim()).filter(Boolean);
+  // Gruppen-Parameter aus .env
+  const groupRelay = import.meta.env.VITE_GROUP_RELAY;
+
   return (
-    <Layout>
-      <h1>Nostr Groups Client</h1>
-      <KeyManagement />
-      <RelayManagement />
-    </Layout>
+    <div className="appContainer">
+      <h1 className="headline">Satoshi Room</h1>
+      <UserProfile npub={npub} relays={relays} />
+      <RelayStatus relays={relays} />
+      <GroupInfo relay={groupRelay} />
+      <AktiveGruppenmitglieder relay={groupRelay} />
+      <LetzteNachrichten relay={groupRelay} />
+      
+    </div>
   );
 }
 

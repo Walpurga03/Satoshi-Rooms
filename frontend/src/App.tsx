@@ -2,8 +2,8 @@ import { Section } from './components/Section';
 import { UserProfile } from './components/UserProfile';
 import { RelayStatus } from './components/RelayStatus';
 import { GroupInfo } from './components/GroupInfo';
-import { AktiveGruppenmitglieder } from './components/AktiveGruppenmitglieder';
-import { LetzteNachrichten } from './components/LetzteNachrichten '; // Fix: match filename with space
+//import { AktiveGruppenmitglieder } from './components/AktiveGruppenmitglieder';
+//import { LetzteNachrichten } from './components/LetzteNachrichten '; // Fix: match filename with space
 
 import './styles/index.scss';
 

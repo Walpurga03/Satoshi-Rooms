@@ -1,0 +1,29 @@
+@use './variables' as v;
+
+// Beispiel-Mixins für wiederverwendbare Patterns
+@mixin card-shadow {
+  box-shadow: v.$shadow-main;
+}
+
+@mixin glassmorphism {
+  background: rgba(36, 33, 54, 0.6);
+  backdrop-filter: blur(12px);
+}
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin card {
+  border-radius: 2.2rem;
+  box-shadow:
+    0 8px 40px 0 rgba(v.$primary,0.13),
+    0 1.5px 8px 0 rgba(v.$primary,0.07),
+    0 0.5px 0.5px 0 rgba(v.$primary,0.04);
+  border: 1.5px solid rgba(v.$primary, 0.13);
+  backdrop-filter: blur(18px) saturate(1.2);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  overflow: hidden;
+}

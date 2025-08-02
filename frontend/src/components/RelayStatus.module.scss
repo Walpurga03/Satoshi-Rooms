@@ -1,4 +1,5 @@
-@use '../styles/variables.scss' as *;
+@use '../styles/variables' as v;
+@use '../styles/mixins' as m;
 
 
 // Nur noch tatsächlich genutzte Styles:
@@ -9,100 +10,54 @@
   align-items: center;
   box-sizing: border-box;
 }
-
 .relayStatusCard {
-  background: linear-gradient(120deg, $surface 60%, $background 100%);
-  border-radius: 22px;
-  box-shadow: 0 4px 32px 0 rgba(167,139,250,0.10);
-  padding: 2.6rem 3.6rem 2.6rem 3.6rem;
-  color: $text;
-  width: $card-width;
+  @include m.card;
+  background: linear-gradient(120deg, rgba(v.$accent,0.22) 0%, rgba(v.$primary,0.18) 60%, rgba(v.$surface,0.92) 100%);
+  box-shadow:
+    0 8px 40px 0 rgba(v.$primary,0.18),
+    0 1.5px 8px 0 rgba(v.$accent,0.13),
+    0 0.5px 0.5px 0 rgba(v.$primary,0.04);
+  border: 2.5px solid v.$accent;
+  padding: 3.2rem 4.2rem;
+  color: v.$text;
+  width: min(90%, v.$card-width);
   margin-bottom: 2.5rem;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  border: 1.5px solid $primary;
-  transition: box-shadow 0.2s, border 0.2s;
+  align-items: center;
+  font-size: 1.18em;
   box-sizing: border-box;
+  position: relative;
+  z-index: 2;
 }
-
 .relayList {
   margin-top: 1.2rem;
-  color: $text-muted;
+  color: v.$text;
   font-size: 1.08em;
   width: 100%;
-  padding-left: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
-
 .relayList li {
   margin-bottom: 0.5rem;
   line-height: 1.5;
   font-family: 'Fira Mono', 'Consolas', monospace;
 }
-
 .statusVerbunden {
   color: #7ee787;
   font-weight: 600;
 }
 .statusPruefe {
-  color: $text;
+  color: v.$text;
   font-weight: 600;
 }
 .statusFehler {
   color: #e57373;
   font-weight: 600;
 }
-
 .statusLabel {
   margin-left: 12px;
   font-size: 1em;
 }
 
-// Box-sizing für Card
-.relayStatusCard {
-  background: linear-gradient(120deg, $surface 60%, $background 100%);
-  border-radius: 22px;
-  box-shadow: 0 4px 32px 0 rgba(167,139,250,0.10);
-  padding: 2.6rem 3.6rem 2.6rem 3.6rem;
-  color: $text;
-  width: $card-width;
-  margin-bottom: 2.5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  border: 1.5px solid $primary;
-  transition: box-shadow 0.2s, border 0.2s;
-  box-sizing: border-box;
-}
-
-.relayList {
-  margin-top: 1.2rem;
-  color: $text-muted;
-  font-size: 1.08em;
-  width: 100%;
-  padding-left: 0.5rem;
-}
-
-.relayList li {
-  margin-bottom: 0.5rem;
-  line-height: 1.5;
-  font-family: 'Fira Mono', 'Consolas', monospace;
-}
-
-.statusVerbunden {
-  color: #7ee787;
-  font-weight: 600;
-}
-.statusPruefe {
-  color: $text;
-  font-weight: 600;
-}
-.statusFehler {
-  color: #e57373;
-  font-weight: 600;
-}
-
-.statusLabel {
-  margin-left: 12px;
-  font-size: 1em;
-}

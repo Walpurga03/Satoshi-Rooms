@@ -1,31 +1,15 @@
-// Zentrale SCSS-Datei für globale Styles und Variablen
-@use './variables.scss' as *;
+@use './variables' as v;
+@use './mixins' as m;
 
 body {
-  font-family: 'Inter', Arial, sans-serif;
-  background: $background;
-  color: $text;
+  background: linear-gradient(135deg, v.$surface 0%, v.$background 100%);
+  color: v.$text;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
   margin: 0;
-  min-width: 1200px;
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
-.layout__main {
-  max-width: 2200px;
-  margin: 0 auto;
-  background: $surface;
-  border-radius: 18px;
-  box-shadow: $shadow-main;
-  padding: 3rem 4rem;
-  min-height: 70vh;
-}
-
-.layout__header {
-  max-width: 2200px;
-  margin: 0 auto 2rem auto;
-  border-radius: 18px 18px 0 0;
-  box-shadow: $shadow-header;
-  background: $primary;
-  color: $primary-dark;
-  letter-spacing: 0.08em;
-  text-shadow: $text-shadow-header;
+* {
+  box-sizing: inherit;
 }

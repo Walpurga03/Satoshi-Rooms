@@ -1,11 +1,16 @@
+
+
 import { useEffect, useState } from 'react';
 import { SimplePool } from 'nostr-tools';
 import type { Filter } from 'nostr-tools';
-import styles from './AktiveGruppenmitglieder.module.scss';
+import styles from './LetzteNachrichten.module.scss';
+
 
 type Props = {
   relay: string;
+  profileRelays: string[];
 };
+
 
 interface GroupMessage {
   id: string;
@@ -16,6 +21,7 @@ interface GroupMessage {
   kind: number;
 }
 
+
 interface UserProfile {
   display_name?: string;
   name?: string;
@@ -23,21 +29,19 @@ interface UserProfile {
   picture?: string;
 }
 
+
 // === Konfiguration ===
 const groupId = import.meta.env.VITE_GROUP_ID;
-const DEFAULT_PROFILE_RELAYS = [
-  'wss://relay.damus.io',
-  'wss://nos.lol',
-  'wss://relay.nostr.band',
-  'wss://nostr.wine',
-  'wss://relay.snort.social',
-];
 
-export function AktiveGruppenmitglieder({ relay }: Props) {
+
+
+
+export function LetzteNachrichten({ relay, profileRelays }: Props) {
   // === State ===
-  const [_messages, setMessages] = useState<GroupMessage[]>([]);
+  const [open, setOpen] = useState(true);
+  const [messages, setMessages] = useState<GroupMessage[]>([]);
   const [userProfiles, setUserProfiles] = useState<Record<string, UserProfile>>({});
-  const [uniquePubkeys, setUniquePubkeys] = useState<string[]>([]);
+  const [_uniquePubkeys, setUniquePubkeys] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -93,7 +97,7 @@ export function AktiveGruppenmitglieder({ relay }: Props) {
             // Falls keine Profile gefunden, von Standard-Relays laden
             if (profileEvents.length === 0) {
               console.log('Suche Profile auf Standard-Relays...');
-              profileEvents = await pool.querySync(DEFAULT_PROFILE_RELAYS, profilesFilter);
+              profileEvents = await pool.querySync(profileRelays, profilesFilter);
               console.log('Profile von Standard-Relays gefunden:', profileEvents.length);
             }
             const profiles: Record<string, UserProfile> = {};
@@ -125,14 +129,14 @@ export function AktiveGruppenmitglieder({ relay }: Props) {
         }
       } finally {
         if (!isCancelled) setLoading(false);
-        pool.close([...relaysToUse, ...DEFAULT_PROFILE_RELAYS]);
+        pool.close([...relaysToUse, ...profileRelays]);
       }
     }
 
     fetchGroupData();
     return () => {
       isCancelled = true;
-      pool.close([...relaysToUse, ...DEFAULT_PROFILE_RELAYS]);
+      pool.close([...relaysToUse, ...profileRelays]);
     };
   }, [relay, groupId]);
 
@@ -140,35 +144,63 @@ export function AktiveGruppenmitglieder({ relay }: Props) {
   if (loading) return <div>Analysiere NIP-29 Gruppendaten…</div>;
   if (error) return <div className={styles.noData}>Fehler: {error}</div>;
 
-  // === Mitgliederliste ===
+  // === Nachrichtenliste ===
   return (
     <div className={styles.groupProfileRoot}>
-      {uniquePubkeys.length > 0 ? (
-        <div className={styles.sectionCard}>
-          <div className={styles.sectionTitle}>({uniquePubkeys.length})</div>
-          {uniquePubkeys.map(pubkey => {
-            const profile = userProfiles[pubkey];
-            return (
-              <div key={pubkey} className={styles.memberRow}>
-                {profile?.picture && (
-                  <img src={profile.picture} alt="Avatar" className={styles.profileImage} />
-                )}
-                <div>
-                  <span className={styles.memberName}>
-                    {profile?.display_name || profile?.name || 'Unbekannter User'}
-                  </span>
-                  <div className={styles.memberPubkey}>
-                    {pubkey.slice(0, 16)}...
-                    {!profile && <span className={styles.noProfile}>(Kein Profil gefunden)</span>}
+      <div
+        className={styles.collapseHeader}
+        onClick={() => setOpen((v) => !v)}
+        role="button"
+        tabIndex={0}
+        aria-expanded={open}
+        aria-label={open ? 'Gruppenbereich zuklappen' : 'Gruppenbereich aufklappen'}
+        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setOpen(v => !v); }}
+        style={{ cursor: 'pointer', userSelect: 'none' }}
+      >
+        <h2 className={styles.collapseHeadline}>
+          Letzte Nachrichten
+          <span className={styles.collapseArrow} aria-hidden="true"/>
+        </h2>
+      </div>
+      <div
+        className={styles.collapseContent}
+        style={{ maxHeight: open ? 2000 : 0, overflow: 'hidden', transition: 'max-height 0.35s cubic-bezier(0.4,0,0.2,1)' }}
+        aria-hidden={!open}
+      >
+        {messages.length > 0 ? (
+          <div className={styles.sectionCard}>
+            <div className={styles.sectionTitle}>({messages.length})</div>
+            {messages
+              .sort((a, b) => b.created_at - a.created_at)
+              .map(msg => {
+                const profile = userProfiles[msg.pubkey];
+                return (
+                  <div key={msg.id} className={styles.messageCard}>
+                    <div className={styles.userInfo}>
+                      <span className={styles.memberName}>
+                        {profile?.display_name || profile?.name || msg.pubkey.slice(0, 16)}
+                      </span>
+                      {' • '}
+                      {new Date(msg.created_at * 1000).toLocaleString()}
+                      {' • '}
+                      <span className={styles.groupInfoLabel}>Kind: {msg.kind}</span>
+                    </div>
+                    <div className={styles.messageContent}>
+                      {msg.content || '<Leere Nachricht>'}
+                    </div>
+                    {msg.tags.length > 0 && (
+                      <div className={styles.tags}>
+                        Tags: {JSON.stringify(msg.tags)}
+                      </div>
+                    )}
                   </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <div className={styles.noData}>Keine Gruppendaten gefunden</div>
-      )}
+                );
+              })}
+          </div>
+        ) : (
+          <div className={styles.noData}>Keine Gruppendaten gefunden</div>
+        )}
+      </div>
     </div>
   );
 }

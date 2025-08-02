@@ -1,0 +1,78 @@
+@use '../styles/variables' as v;
+@use '../styles/mixins' as m;
+
+// =============================
+// LetzteNachrichten Styles (nur genutzt, alles konsistent, Card wie UserProfile)
+// =============================
+
+.letzteNachrichtenRoot {
+  margin-top: 3.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 1.18em;
+  box-sizing: border-box;
+}
+
+// Card-Design wie UserProfile/GroupInfo
+
+.sectionCard {
+  @include m.card;
+  width: v.$card-width;
+  margin-bottom: 2.5rem;
+  align-items: flex-start;
+  font-size: 1.13em;
+  max-height: 520px; // Begrenzte Höhe für Scrollbarkeit
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: v.$primary v.$surface;
+}
+
+.sectionTitle {
+  font-size: 1.45em;
+  font-weight: 700;
+  color: v.$primary;
+  margin-bottom: 1.1rem;
+  letter-spacing: 0.04em;
+  text-align: center;
+  width: 100%;
+}
+
+// Einzelne Nachrichtenkarten
+.messageCard {
+  margin-bottom: 1.2rem;
+  padding: 1.4rem 1.7rem;
+  background: #181825;
+  border-radius: 10px;
+  border-left: 4px solid #7ee787;
+  box-shadow: 0 1px 4px #0001;
+  font-size: 1.13em;
+}
+
+.userInfo {
+  font-size: 1.13em;
+  color: #7ee787;
+  font-weight: 700;
+  margin-bottom: 0.2em;
+}
+
+.messageContent {
+  font-size: 1.18em;
+  color: v.$text;
+  margin-top: 0.2em;
+  font-family: 'Fira Mono', Menlo, monospace;
+}
+
+.tags {
+  font-size: 1.05em;
+  color: v.$text-muted;
+  margin-top: 0.3em;
+}
+
+.noData {
+  color: v.$accent;
+  font-size: 1.18em;
+  margin-top: 1.2em;
+  text-align: center;
+}
+

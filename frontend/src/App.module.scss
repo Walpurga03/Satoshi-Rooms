@@ -1,0 +1,34 @@
+@use './styles/variables' as v;
+@use './styles/mixins' as m;
+
+
+.appContainer {
+  background: linear-gradient(135deg, v.$surface 0%, v.$background 100%);
+  color: v.$text;
+  border-radius: v.$border-radius;
+  padding: v.$container-padding;
+  margin: 3.5rem auto 2.5rem auto;
+  max-width: 2000px;
+  min-width: 900px;
+  width: 100%;
+  box-sizing: border-box;
+  @include m.card-shadow;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1.5px solid v.$primary;
+  transition: box-shadow v.$transition-main, border v.$transition-main;
+}
+
+.headline {
+  margin-bottom: 2.5rem;
+  font-size: 2.8rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: v.$primary;
+  text-shadow: v.$text-shadow-header, 0 1px 2px v.$background;
+  background: linear-gradient(0deg, v.$primary 20%, v.$accent 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

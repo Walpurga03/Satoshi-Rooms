@@ -1,20 +1,21 @@
-@use '../styles/variables.scss' as *;
+@use '../styles/variables' as v;
+@use '../styles/mixins' as m;
 
 .sectionCard {
-  background: linear-gradient(120deg, rgba($surface,0.92) 60%, rgba($background,0.98) 100%);
+  background: linear-gradient(120deg, rgba(v.$surface,0.92) 60%, rgba(v.$background,0.98) 100%);
   border-radius: 2.2rem;
   box-shadow:
-    0 8px 40px 0 rgba($primary,0.13),
-    0 1.5px 8px 0 rgba($primary,0.07),
-    0 0.5px 0.5px 0 rgba($primary,0.04);
+    0 8px 40px 0 rgba(v.$primary,0.13),
+    0 1.5px 8px 0 rgba(v.$primary,0.07),
+    0 0.5px 0.5px 0 rgba(v.$primary,0.04);
   padding: 2.5rem 3.5rem 2.5rem 3.5rem;
-  color: $text;
-  width: min(98vw, $card-width);
+  color: v.$text;
+  width: min(98vw, v.$card-width);
   margin-bottom: 2.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 1.5px solid rgba($primary, 0.13);
+  border: 1.5px solid rgba(v.$primary, 0.13);
   font-size: 1.13em;
   box-sizing: border-box;
   position: relative;
@@ -24,7 +25,7 @@
 }
 
 .collapseHeader {
-  width: $card-width;
+  width: v.$card-width;
   display: flex;
   align-items: center;
   margin-bottom: 0.2rem;
@@ -34,16 +35,18 @@
   transition: background 0.18s;
   box-sizing: border-box;
   &:hover, &:focus {
-    background: rgba($primary, 0.08);
+    background: rgba(v.$primary, 0.08);
   }
 }
 .collapseHeadline {
   width: 100%;
   display: flex;
   align-items: center;
+  justify-content: center;
+  text-align: center;
   font-size: 2.1rem;
   font-weight: 800;
-  color: $primary;
+  color: v.$primary;
   letter-spacing: 0.01em;
   gap: 0.7rem;
   margin: 0;
@@ -65,8 +68,8 @@
     display: block;
     width: 0.7em;
     height: 0.7em;
-    border-right: 3px solid $primary;
-    border-bottom: 3px solid $primary;
+    border-right: 3px solid v.$primary;
+    border-bottom: 3px solid v.$primary;
     border-radius: 2px;
     transform: rotate(45deg);
     transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
@@ -81,7 +84,7 @@
 }
 // Collapsible content (closed)
 .collapseContent {
-  width: $card-width;
+  width: v.$card-width;
   max-height: 0;
   overflow: hidden;
   box-sizing: border-box;
@@ -93,7 +96,7 @@
 
 // Collapsible content (open)
 .collapseContentOpen {
-  width: $card-width;
+  width: v.$card-width;
   max-height: 900px;
   overflow: visible;
   box-sizing: border-box;

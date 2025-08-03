@@ -25,13 +25,7 @@ interface UserProfile {
 
 // === Konfiguration ===
 const groupId = import.meta.env.VITE_GROUP_ID;
-const DEFAULT_PROFILE_RELAYS = [
-  'wss://relay.damus.io',
-  'wss://nos.lol',
-  'wss://relay.nostr.band',
-  'wss://nostr.wine',
-  'wss://relay.snort.social',
-];
+const relays = (import.meta.env.VITE_NOSTR_RELAY || '').split(',').map((r: string) => r.trim()).filter(Boolean);
 
 export function AktiveGruppenmitglieder({ relay }: Props) {
   // === State ===
@@ -93,7 +87,7 @@ export function AktiveGruppenmitglieder({ relay }: Props) {
             // Falls keine Profile gefunden, von Standard-Relays laden
             if (profileEvents.length === 0) {
               console.log('Suche Profile auf Standard-Relays...');
-              profileEvents = await pool.querySync(DEFAULT_PROFILE_RELAYS, profilesFilter);
+              profileEvents = await pool.querySync(relays, profilesFilter);
               console.log('Profile von Standard-Relays gefunden:', profileEvents.length);
             }
             const profiles: Record<string, UserProfile> = {};
@@ -125,14 +119,14 @@ export function AktiveGruppenmitglieder({ relay }: Props) {
         }
       } finally {
         if (!isCancelled) setLoading(false);
-        pool.close([...relaysToUse, ...DEFAULT_PROFILE_RELAYS]);
+        pool.close([...relaysToUse, ...relays]);
       }
     }
 
     fetchGroupData();
     return () => {
       isCancelled = true;
-      pool.close([...relaysToUse, ...DEFAULT_PROFILE_RELAYS]);
+      pool.close([...relaysToUse, ...relays]);
     };
   }, [relay, groupId]);
 

@@ -2,77 +2,472 @@
 @use '../styles/mixins' as m;
 
 // =============================
-// LetzteNachrichten Styles (nur genutzt, alles konsistent, Card wie UserProfile)
+// LetzteNachrichten Styles - Optimiert für neue Features
 // =============================
 
-.letzteNachrichtenRoot {
+.groupProfileRoot {
   margin-top: 3.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   font-size: 1.18em;
   box-sizing: border-box;
-}
-
-// Card-Design wie UserProfile/GroupInfo
-
-.sectionCard {
-  @include m.card;
-  width: v.$card-width;
-  margin-bottom: 2.5rem;
-  align-items: flex-start;
-  font-size: 1.13em;
-  max-height: 520px; // Begrenzte Höhe für Scrollbarkeit
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: v.$primary v.$surface;
-}
-
-.sectionTitle {
-  font-size: 1.45em;
-  font-weight: 700;
-  color: v.$primary;
-  margin-bottom: 1.1rem;
-  letter-spacing: 0.04em;
-  text-align: center;
   width: 100%;
 }
 
-// Einzelne Nachrichtenkarten
+// =========================
+// Collapse Header & Content
+// =========================
+
+.collapseHeader {
+  @include m.card;
+  width: v.$card-width;
+  padding: 1.6rem 2rem;
+  margin-bottom: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 12px 12px 0 0;
+
+  &:hover {
+    background: adjust(v.$surface);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.collapseHeadline {
+  font-size: 1.45em;
+  font-weight: 700;
+  color: v.$primary;
+  margin: 0;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.messageCount {
+  font-size: 0.8em;
+  color: v.$text-muted;
+  font-weight: 500;
+  background: v.$surface;
+  padding: 0.2em 0.6em;
+  border-radius: 12px;
+  border: 1px solid v.$border;
+}
+
+.loadingDot {
+  color: #3b82f6;
+  font-size: 0.6em;
+  animation: pulse 1.5s infinite;
+}
+
+.profileLoadingDot {
+  color: #f59e0b;
+  font-size: 0.8em;
+  animation: bounce 1s infinite;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.refreshButton {
+  background: none;
+  border: none;
+  color: v.$text-muted;
+  font-size: 1.2em;
+  cursor: pointer;
+  padding: 0.4em;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: v.$primary;
+    background: v.$surface;
+    transform: rotate(180deg);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.collapseArrow {
+  color: v.$text-muted;
+  font-size: 0.8em;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.open {
+    transform: rotate(180deg);
+  }
+}
+
+.collapseContent {
+  width: v.$card-width;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  background: v.$surface;
+  border-radius: 0 0 12px 12px;
+  border: 1px solid v.$border;
+  border-top: none;
+
+  &.open {
+    max-height: 2000px;
+  }
+}
+
+// =========================
+// Stats Bar
+// =========================
+
+.statsBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1.2rem 2rem;
+  background: linear-gradient(135deg, #181825 0%, #232136 100%);
+  border-bottom: 1px solid v.$border;
+  font-size: 0.9em;
+  color: v.$text-muted;
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3em 0.6em;
+    background: v.$surface;
+    border-radius: 8px;
+    border: 1px solid v.$border;
+    font-weight: 500;
+  }
+}
+
+.lastUpdate {
+  margin-left: auto;
+  font-style: italic;
+  color: v.$text-muted;
+}
+
+// =========================
+// Messages Container
+// =========================
+
+.messagesContainer {
+  padding: 1.5rem 2rem;
+  max-height: 600px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: v.$primary v.$surface;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: v.$surface;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: v.$primary;
+    border-radius: 3px;
+
+    &:hover {
+      background: adjust(v.$primary);
+    }
+  }
+}
+
+// =========================
+// Message Cards
+// =========================
+
 .messageCard {
-  margin-bottom: 1.2rem;
+  margin-bottom: 1.4rem;
   padding: 1.4rem 1.7rem;
   background: #181825;
-  border-radius: 10px;
+  border-radius: 12px;
   border-left: 4px solid #7ee787;
-  box-shadow: 0 1px 4px #0001;
-  font-size: 1.13em;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  position: relative;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-left-color: adjust(#7ee787);
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.messageHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+
+.userAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #7ee787;
+  object-fit: cover;
+  flex-shrink: 0;
 }
 
 .userInfo {
-  font-size: 1.13em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0; // Für text-overflow
+}
+
+.memberName {
+  font-size: 1.1em;
   color: #7ee787;
   font-weight: 700;
-  margin-bottom: 0.2em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.verifiedBadge {
+  color: #10b981;
+  font-size: 0.9em;
+  font-weight: 600;
+}
+
+.messageTime {
+  font-size: 0.85em;
+  color: v.$text-muted;
+  font-weight: 500;
+  margin-left: auto;
+  white-space: nowrap;
 }
 
 .messageContent {
-  font-size: 1.18em;
+  font-size: 1.1em;
   color: v.$text;
-  margin-top: 0.2em;
-  font-family: 'Fira Mono', Menlo, monospace;
+  line-height: 1.5;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  
+  // Style für verschiedene Content-Typen
+  &:empty::before {
+    content: '(Leere Nachricht)';
+    color: v.$text-muted;
+    font-style: italic;
+  }
 }
 
-.tags {
-  font-size: 1.05em;
+.debugInfo {
+  margin-top: 0.8rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid v.$border;
+  font-size: 0.8em;
   color: v.$text-muted;
-  margin-top: 0.3em;
+  font-family: monospace;
 }
 
-.noData {
-  color: v.$accent;
-  font-size: 1.18em;
-  margin-top: 1.2em;
+// =========================
+// States & Messages
+// =========================
+
+.moreMessagesHint {
+  text-align: center;
+  padding: 1rem;
+  color: v.$text-muted;
+  font-style: italic;
+  border-top: 1px solid v.$border;
+  margin-top: 1rem;
+}
+
+.noMessages {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
   text-align: center;
 }
 
+.noMessagesIcon {
+  font-size: 3em;
+  margin-bottom: 1rem;
+  opacity: 0.6;
+}
+
+.noMessagesText {
+  font-size: 1.3em;
+  font-weight: 600;
+  color: v.$text;
+  margin-bottom: 0.5rem;
+}
+
+.noMessagesSubtext {
+  font-size: 1em;
+  color: v.$text-muted;
+  margin-bottom: 1.5rem;
+}
+
+// =========================
+// Loading & Error States
+// =========================
+
+.loadingContainer {
+  @include m.card;
+  width: v.$card-width;
+  padding: 3rem 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.loadingSpinner {
+  font-size: 2em;
+  animation: spin 2s linear infinite;
+}
+
+.errorContainer {
+  @include m.card;
+  width: v.$card-width;
+  padding: 2rem;
+  text-align: center;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+}
+
+.errorMessage {
+  color: #dc2626;
+  font-size: 1.1em;
+  margin-bottom: 1rem;
+}
+
+.retryButton {
+  background: v.$primary;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: adjust(v.$primary);
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+// =========================
+// Animations
+// =========================
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+// =========================
+// Responsive Design
+// =========================
+
+@media (max-width: 768px) {
+  .groupProfileRoot {
+    margin-top: 2rem;
+    font-size: 1.1em;
+  }
+
+  .collapseHeader,
+  .collapseContent {
+    width: calc(100vw - 2rem);
+  }
+
+  .collapseHeader {
+    padding: 1.2rem 1.5rem;
+  }
+
+  .messagesContainer {
+    padding: 1rem 1.5rem;
+    max-height: 400px;
+  }
+
+  .messageCard {
+    padding: 1rem 1.2rem;
+  }
+
+  .statsBar {
+    padding: 1rem 1.5rem;
+    font-size: 0.8em;
+    
+    span {
+      padding: 0.2em 0.4em;
+    }
+  }
+
+  .userAvatar {
+    width: 28px;
+    height: 28px;
+  }
+
+  .memberName {
+    font-size: 1em;
+  }
+}
+
+@media (max-width: 480px) {
+  .statsBar {
+    flex-direction: column;
+    gap: 0.5rem;
+    
+    span {
+      justify-content: center;
+    }
+  }
+
+  .messageHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .messageTime {
+    margin-left: 0;
+    align-self: flex-end;
+  }
+}

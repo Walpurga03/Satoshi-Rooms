@@ -1,9 +1,12 @@
+import { useState } from 'react';
 import { Section } from './components/Section';
 import { UserProfile } from './components/UserProfile';
 import { RelayStatus } from './components/RelayStatus';
 import { GroupInfo } from './components/GroupInfo';
 import { AktiveGruppenmitglieder } from './components/AktiveGruppenmitglieder';
 import { LetzteNachrichten } from './components/LetzteNachrichten';
+import { NsecLogin } from './components/NsecLogin';
+import { MessageComposer } from './components/MessageComposer';
 import styles from './App.module.scss';
 
 
@@ -31,21 +34,58 @@ const sectionConfig = [
   {
     title: 'Letzte Nachrichten',
     component: LetzteNachrichten,
-    props: (_npub: string, relays: string[], groupRelay: string) => ({ relay: groupRelay, profileRelays: relays }),
+    props: (_npub: string, relays: string[], groupRelay: string) => ({
+      relay: groupRelay,
+      profileRelays: relays,
+      reload: 0,
+    }),
+  },
+  {
+    title: 'Nachricht schreiben',
+    component: MessageComposer,
+    props: (npub: string, relays: string[], _unused: string, privkey: string) => ({
+      privkey,
+      npub,
+      relays,
+      groupId: import.meta.env.VITE_GROUP_ID,
+      onSend: () => {},
+    }),
   },
 ];
 
 function App() {
-  const npub = import.meta.env.VITE_USER_NPUB;
+  // State für Login
+  const [privkey, setPrivkey] = useState<string | null>(null);
+  const [npub, setNpub] = useState<string | null>(null);
+  // const [reloadMessages, setReloadMessages] = useState(0);
+
   const relays = (import.meta.env.VITE_NOSTR_RELAY || '').split(',').map((r: string) => r.trim()).filter(Boolean);
   const groupRelay = import.meta.env.VITE_GROUP_RELAY;
 
+  // Wenn nicht eingeloggt, Login anzeigen
+  if (!privkey || !npub) {
+    return (
+      <div className={styles.appContainer}>
+        <h1 className={styles.headline}>Satoshi Room</h1>
+        <Section title="Login">
+          <NsecLogin
+            onLogin={(priv, npub) => {
+              setPrivkey(priv);
+              setNpub(npub);
+            }}
+          />
+        </Section>
+      </div>
+    );
+  }
+
+  // Nach Login: App wie gehabt, aber mit npub aus Login
   return (
     <div className={styles.appContainer}>
       <h1 className={styles.headline}>Satoshi Room</h1>
       {sectionConfig.map(({ title, component: Component, props }) => (
         <Section title={title} key={title}>
-          <Component {...props(npub, relays , groupRelay) as any} />
+          <Component {...props(npub, relays, groupRelay, privkey) as any} />
         </Section>
       ))}
     </div>

@@ -5,7 +5,7 @@ $secondary: #393552; // Sekundär, dunkler Hintergrund
 $accent: #f6c177; // Dezenter Akzent (z.B. für Buttons)
 $background: #232136; // Sehr dunkles Violett
 $surface: #393552; // Flächen
-$text: #776ad3; // Helles Textweiß
+$text: #e0def4; // Helles Textweiß
 $text-muted: #6e6a86;
 
 // Schatten
@@ -14,7 +14,12 @@ $shadow-header: 0 2px 16px 0 rgba(167,139,250,0.10);
 $text-shadow-header: 0 2px 8px rgba(167,139,250,0.10);
 
 // Layout
-$card-width: 1456px;
-$border-radius: 32px;
-$transition-main: 0.3s cubic-bezier(0.4,0,0.2,1);
+$card-width: 1580px;
+$border-radius: 12px;
 $container-padding: 3.5rem 4.5rem 3rem 4.5rem;
+
+// Border
+$border: #2a283a;
+
+// Transitions
+$transition-main: 0.18s cubic-bezier(0.4, 0, 0.2, 1);

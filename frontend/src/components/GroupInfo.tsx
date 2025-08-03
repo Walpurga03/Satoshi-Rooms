@@ -28,17 +28,8 @@ interface UserProfile {
 const groupId = import.meta.env.VITE_GROUP_ID;
 const groupRelay = import.meta.env.VITE_GROUP_RELAY;
 
-// Profile-Relays aus .env (Komma-separiert), Fallback: Standard-Relays
-const DEFAULT_PROFILE_RELAYS = [
-  'wss://relay.damus.io',
-  'wss://nos.lol',
-  'wss://relay.nostr.band',
-  'wss://nostr.wine',
-  'wss://relay.snort.social',
-];
-const PROFILE_RELAYS = ((import.meta.env.VITE_PROFILE_RELAYS as string | undefined)?.split(',').map(r => r.trim()).filter(Boolean) ?? []).length > 0
-  ? (import.meta.env.VITE_PROFILE_RELAYS as string).split(',').map(r => r.trim()).filter(Boolean)
-  : DEFAULT_PROFILE_RELAYS;
+// Relays aus .env (Komma-separiert)
+const relays = (import.meta.env.VITE_NOSTR_RELAY || '').split(',').map((r: string) => r.trim()).filter(Boolean);
 
 export function GroupInfo({ relay }: Props) {
   // === State ===
@@ -56,7 +47,6 @@ export function GroupInfo({ relay }: Props) {
     const relaysToUse = groupRelay ? [groupRelay] : [relay];
     setLoading(true);
     setError(null);
-
 
     async function fetchGroupData() {
       try {
@@ -87,7 +77,7 @@ export function GroupInfo({ relay }: Props) {
           setUniquePubkeys(uniqueKeys);
           console.log('Aktive User in der Gruppe:', uniqueKeys);
 
-          // 4. Profile laden (erst Gruppen-Relay, dann Standard)
+          // 4. Profile laden (erst Gruppen-Relay, dann Relays aus .env)
           if (uniqueKeys.length > 0) {
             const profilesFilter: Filter = {
               kinds: [0],
@@ -98,11 +88,11 @@ export function GroupInfo({ relay }: Props) {
             console.log('Suche Profile auf Gruppen-Relay...');
             let profileEvents = await pool.querySync(relaysToUse, profilesFilter);
             console.log('Profile vom Gruppen-Relay:', profileEvents.length);
-            // Falls keine Profile gefunden, von Standard-Relays laden
+            // Falls keine Profile gefunden, von Relays aus .env laden
             if (profileEvents.length === 0) {
-              console.log('Suche Profile auf Standard-Relays...');
-              profileEvents = await pool.querySync(PROFILE_RELAYS, profilesFilter);
-              console.log('Profile von Standard-Relays gefunden:', profileEvents.length);
+              console.log('Suche Profile auf Relays aus .env...');
+              profileEvents = await pool.querySync(relays, profilesFilter);
+              console.log('Profile von Relays aus .env gefunden:', profileEvents.length);
             }
             const profiles: Record<string, UserProfile> = {};
             profileEvents.forEach(event => {
@@ -133,14 +123,14 @@ export function GroupInfo({ relay }: Props) {
         }
       } finally {
         if (!isCancelled) setLoading(false);
-        pool.close([...relaysToUse, ...PROFILE_RELAYS]);
+        pool.close([...relaysToUse, ...relays]);
       }
     }
 
     fetchGroupData();
     return () => {
       isCancelled = true;
-      pool.close([...relaysToUse, ...PROFILE_RELAYS]);
+      pool.close([...relaysToUse, ...relays]);
     };
   }, [relay, groupId]);
 

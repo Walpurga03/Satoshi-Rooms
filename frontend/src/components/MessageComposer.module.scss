@@ -1,0 +1,102 @@
+@use '../styles/variables' as v;
+@use '../styles/mixins' as m;
+
+.composerCard {
+  @include m.card;
+  background: linear-gradient(120deg, rgba(v.$accent,0.18) 0%, rgba(v.$primary,0.13) 60%, rgba(v.$surface,0.95) 100%);
+  box-shadow:
+    0 8px 40px 0 rgba(v.$primary,0.13),
+    0 1.5px 8px 0 rgba(v.$accent,0.09),
+    0 0.5px 0.5px 0 rgba(v.$primary,0.03);
+  border: 2.5px solid v.$accent;
+  padding: 2.2rem 2.5rem;
+  color: v.$text;
+  width: min(90%, v.$card-width);
+  margin: 2.5rem auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 1.13em;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 2;
+}
+
+.composerRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.composerInput {
+  flex: 1;
+  padding: 0.7em 1em;
+  border-radius: 0.7em;
+  border: 1.5px solid v.$primary;
+  font-size: 1.1em;
+  background: v.$surface;
+  color: v.$text;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+}
+
+.composerButton {
+  padding: 0.7em 1.4em;
+  border-radius: 0.7em;
+  border: none;
+  background: v.$primary;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1.1em;
+  cursor: pointer;
+  transition: background 0.18s;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  &:hover, &:focus {
+    background: v.$accent;
+    color: v.$primary-dark;
+  }
+}
+
+// MessageComposer.module.scss - Ergänzungen
+.composerMeta {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #666;
+
+  .warning {
+    color: #f59e0b;
+    font-weight: 600;
+  }
+}
+
+.composerDebug {
+  margin-top: 8px;
+  font-size: 11px;
+  color: #999;
+  opacity: 0.7;
+}
+
+.composerButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.composerSuccess {
+  color: #1b8a3a;
+  margin-top: 0.7em;
+  font-weight: 600;
+}
+
+// MessageComposer.module.scss - Ergänzung
+.composerSuccess {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background-color: #dcfce7;
+  border: 1px solid #16a34a;
+  border-radius: 6px;
+  color: #166534;
+  font-size: 14px;
+  font-weight: 500;
+}

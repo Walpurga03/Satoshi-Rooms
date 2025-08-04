@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { nip19, getPublicKey } from 'nostr-tools';
 import { bytesToHex } from '@noble/hashes/utils';
 import styles from './NsecLogin.module.scss';
@@ -10,6 +10,25 @@ type Props = {
 export function NsecLogin({ onLogin }: Props) {
   const [nsec, setNsec] = useState('');
   const [error, setError] = useState('');
+
+  // Prüfe beim Laden, ob nsec im LocalStorage ist
+  useEffect(() => {
+    const saved = localStorage.getItem('nsec');
+    if (saved) {
+      try {
+        const { type, data } = nip19.decode(saved.trim());
+        if (type === 'nsec') {
+          const privkey = bytesToHex(data);
+          const pubkey = getPublicKey(data);
+          const npub = nip19.npubEncode(pubkey);
+          onLogin(privkey, npub);
+          setNsec(saved);
+        }
+      } catch {
+        // Ignoriere ungültigen gespeicherten nsec
+      }
+    }
+  }, [onLogin]);
 
   const handleLogin = () => {
     try {
@@ -23,6 +42,7 @@ export function NsecLogin({ onLogin }: Props) {
       console.log('Privkey (hex):', privkey);
       console.log('Pubkey (hex):', pubkey);
       console.log('Abgeleitete npub:', npub);
+      localStorage.setItem('nsec', nsec); // <-- Speichern!
       onLogin(privkey, npub); // <-- npub-Format!
       setError('');
     } catch (e: any) {

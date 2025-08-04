@@ -1,100 +1,568 @@
 @use '../styles/variables' as v;
 @use '../styles/mixins' as m;
 
+// =============================
+// AktiveGruppenmitglieder Styles - Modern & Interactive
+// =============================
+
 .groupProfileRoot {
   margin-top: 3.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 2rem;
   font-size: 1.18em;
   box-sizing: border-box;
+  width: 100%;
 }
 
+// =========================
+// Header Card & Controls
+// =========================
 
-// MODERN CARD
-.sectionCard {
+.headerCard {
   @include m.card;
-  background: linear-gradient(120deg, rgba(v.$accent,0.22) 0%, rgba(v.$primary,0.18) 60%, rgba(v.$surface,0.92) 100%);
-  box-shadow:
-    0 8px 40px 0 rgba(v.$primary,0.18),
-    0 1.5px 8px 0 rgba(v.$accent,0.13),
-    0 0.5px 0.5px 0 rgba(v.$primary,0.04);
-  border: 2.5px solid v.$accent;
-  padding: 3.2rem 4.2rem;
-  color: v.$text;
-  width: min(90%, v.$card-width);
-  margin-bottom: 2.5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-size: 1.18em;
-  box-sizing: border-box;
-  position: relative;
-  z-index: 2;
+  width: min(95%, v.$card-width);
+  background: linear-gradient(135deg, 
+    rgba(v.$primary, 0.12) 0%, 
+    rgba(v.$accent, 0.08) 50%, 
+    rgba(v.$surface, 0.95) 100%
+  );
+  border: 2px solid rgba(v.$primary, 0.3);
+  box-shadow: 
+    0 12px 48px rgba(v.$primary, 0.15),
+    0 4px 16px rgba(v.$accent, 0.1);
+  padding: 0;
+  overflow: hidden;
 }
 
-.sectionTitle {
+.headerContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.6rem 2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(v.$primary, 0.05);
+  }
+}
+
+.headerLeft {
+  flex: 1;
+}
+
+.headerTitle {
   font-size: 1.45em;
   font-weight: 700;
   color: v.$primary;
-  margin-bottom: 1.1rem;
+  margin: 0;
   letter-spacing: 0.04em;
-}
-
-.groupInfoLabel {
-  color: v.$primary;
-  font-weight: 600;
-  margin-right: 6px;
-}
-
-.memberRow {
-  margin-bottom: 14px;
   display: flex;
   align-items: center;
-  background: linear-gradient(90deg, rgba(v.$primary,0.04) 0%, rgba(v.$surface,0.10) 100%);
-  border-radius: 16px;
-  padding: 14px 22px;
-  box-shadow: 0 2px 12px 0 rgba(v.$primary,0.07);
-  min-width: 220px;
+  gap: 0.8rem;
 }
 
-.profileImage {
-  width: 48px;
-  height: 48px;
+.memberCount {
+  font-size: 0.8em;
+  color: v.$text-muted;
+  font-weight: 500;
+  background: v.$surface;
+  padding: 0.2em 0.6em;
+  border-radius: 12px;
+  border: 1px solid v.$border;
+}
+
+.loadingDot {
+  color: #3b82f6;
+  font-size: 0.6em;
+  animation: pulse 1.5s infinite;
+}
+
+.profileLoadingDot {
+  color: #f59e0b;
+  font-size: 0.8em;
+  animation: bounce 1s infinite;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.refreshButton {
+  background: none;
+  border: none;
+  color: v.$text-muted;
+  font-size: 1.2em;
+  cursor: pointer;
+  padding: 0.4em;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: v.$primary;
+    background: v.$surface;
+    transform: rotate(180deg);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.expandIcon {
+  color: v.$text-muted;
+  font-size: 0.8em;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.expanded {
+    transform: rotate(180deg);
+  }
+}
+
+// =========================
+// Controls Bar
+// =========================
+
+.controlsBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.2rem 2rem;
+  background: linear-gradient(90deg, #181825 0%, #232136 100%);
+  border-top: 1px solid v.$border;
+}
+
+.searchContainer {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.7rem 2.5rem 0.7rem 1rem;
+  border: 1px solid v.$border;
+  border-radius: 8px;
+  background: v.$surface;
+  color: v.$text;
+  font-size: 0.9em;
+  transition: all 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-color: v.$primary;
+    box-shadow: 0 0 0 3px rgba(v.$primary, 0.1);
+  }
+
+  &::placeholder {
+    color: v.$text-muted;
+  }
+}
+
+.searchIcon {
+  position: absolute;
+  right: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: v.$text-muted;
+  pointer-events: none;
+}
+
+.sortContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sortLabel {
+  font-size: 0.9em;
+  color: v.$text-muted;
+  font-weight: 500;
+}
+
+.sortSelect {
+  padding: 0.5rem 0.8rem;
+  border: 1px solid v.$border;
+  border-radius: 6px;
+  background: v.$surface;
+  color: v.$text;
+  font-size: 0.9em;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    border-color: v.$primary;
+  }
+}
+
+.statsInfo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.85em;
+  color: v.$text-muted;
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+}
+
+.lastUpdate {
+  font-style: italic;
+  color: v.$text-muted;
+}
+
+// =========================
+// Members Container
+// =========================
+
+.membersContainer {
+  width: min(95%, v.$card-width);
+  transition: all 0.35s ease;
+
+  &.collapsed {
+    max-height: 0;
+    overflow: hidden;
+  }
+
+  &.expanded {
+    max-height: none;
+  }
+}
+
+.membersGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: v.$surface;
+  border-radius: 12px;
+  border: 1px solid v.$border;
+}
+
+// =========================
+// Member Cards
+// =========================
+
+.memberCard {
+  background: linear-gradient(135deg, #181825 0%, #232136 100%);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid v.$border;
+  transition: all 0.2s ease;
+  position: relative;
+  display: flex;
+  gap: 1rem;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(v.$primary, 0.15);
+    border-color: rgba(v.$primary, 0.4);
+  }
+
+  &.clickable {
+    cursor: pointer;
+
+    &:hover {
+      background: linear-gradient(135deg, #1f1f2e 0%, #2a2a40 100%);
+    }
+  }
+}
+
+.memberAvatar {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.avatarImage {
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   object-fit: cover;
-  margin-right: 18px;
-  border: 2.5px solid v.$primary;
-  box-shadow:
-    0 0 0 6px rgba(v.$primary,0.07),
-    0 2px 8px 0 rgba(v.$primary,0.10);
-  background: v.$background;
-  display: block;
+  border: 3px solid v.$primary;
+  box-shadow: 0 4px 12px rgba(v.$primary, 0.2);
+}
+
+.avatarFallback {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, v.$primary 0%, v.$accent 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5em;
+  color: white;
+  border: 3px solid v.$primary;
+}
+
+.adminBadge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8em;
+  border: 2px solid v.$surface;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.memberInfo {
+  flex: 1;
+  min-width: 0; // Für text-overflow
 }
 
 .memberName {
-  font-weight: 800;
+  font-weight: 700;
   color: v.$primary;
-  font-size: 1.18em;
+  font-size: 1.1em;
   letter-spacing: 0.01em;
-  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  margin-bottom: 0.3rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.memberVerified {
+  color: #10b981;
+  font-size: 0.8em;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
 }
 
 .memberPubkey {
-  font-size: 1.01em;
+  font-size: 0.85em;
   color: v.$text-muted;
-  margin-left: 10px;
   font-family: 'Fira Mono', 'Consolas', monospace;
+  margin-bottom: 0.5rem;
 }
 
 .noProfile {
   color: v.$accent;
-  margin-left: 10px;
-  font-size: 0.98em;
+  font-style: italic;
+  font-size: 0.9em;
 }
 
-.noData {
-  color: v.$accent;
-  font-size: 1.18em;
-  margin-top: 1.2em;
+.memberStats {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.statItem {
+  font-size: 0.8em;
+  color: v.$text-muted;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.memberBio {
+  font-size: 0.85em;
+  color: v.$text-muted;
+  line-height: 1.4;
+  margin-top: 0.5rem;
+}
+
+.lightningBadge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  color: #fbbf24;
+  font-size: 1.2em;
+  opacity: 0.8;
+}
+
+// =========================
+// States & Messages
+// =========================
+
+.moreHint {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  text-align: center;
+  background: linear-gradient(135deg, rgba(v.$primary, 0.05) 0%, rgba(v.$accent, 0.05) 100%);
+  border-radius: 12px;
+  border: 2px dashed rgba(v.$primary, 0.3);
+}
+
+.moreIcon {
+  font-size: 2em;
+  margin-bottom: 0.5rem;
+}
+
+.moreText {
+  color: v.$text-muted;
+  margin-bottom: 1rem;
+}
+
+.showMoreButton {
+  background: v.$primary;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.noResults, .noMembers {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
+  background: v.$surface;
+  border-radius: 12px;
+  border: 1px solid v.$border;
+}
+
+.noResultsIcon, .noMembersIcon {
+  font-size: 3em;
+  margin-bottom: 1rem;
+  opacity: 0.6;
+}
+
+.noResultsText, .noMembersText {
+  font-size: 1.2em;
+  font-weight: 600;
+  color: v.$text;
+  margin-bottom: 0.5rem;
+}
+
+.noMembersSubtext {
+  font-size: 1em;
+  color: v.$text-muted;
+  margin-bottom: 1.5rem;
+}
+
+.clearSearchButton {
+  background: v.$accent;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: adjust(v.$accent);
+  }
+}
+
+// =========================
+// Summary Stats (Collapsed State)
+// =========================
+
+.summaryStats {
+  width: min(95%, v.$card-width);
+  background: v.$surface;
+  border-radius: 12px;
+  border: 1px solid v.$border;
+  padding: 1.5rem;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+}
+
+.summaryItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1rem;
+  background: linear-gradient(135deg, #181825 0%, #232136 100%);
+  border-radius: 8px;
+  border: 1px solid v.$border;
+}
+
+.summaryIcon {
+  font-size: 1.5em;
+  margin-bottom: 0.5rem;
+}
+
+.summaryValue {
+  font-size: 1.3em;
+  font-weight: 700;
+  color: v.$primary;
+  margin-bottom: 0.2rem;
+}
+
+.summaryLabel {
+  font-size: 0.8em;
+  color: v.$text-muted;
+  font-weight: 500;
+}
+
+// =========================
+// Loading & Error States
+// =========================
+
+.loadingCard, .errorCard {
+  @include m.card;
+  width: min(95%, v.$card-width);
+  padding: 3rem 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.loadingSpinner {
+  font-size: 2em;
+  animation: spin 2s linear infinite;
+}
+
+.loadingText, .errorText {
+  font-size: 1.1em;
+  color: v.$text;
+}
+
+.errorIcon {
+  font-size: 2em;
+  color: #dc2626;
+}
+
+.retryButton {
+  background: v.$primary;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: adjust(v.$primary);
+    transform: translateY(-1px);
+  }
+  &:disabled {
+    background: v.$text-muted;
+    cursor: not-allowed;
+  }
 }

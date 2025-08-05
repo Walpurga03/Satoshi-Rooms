@@ -60,12 +60,15 @@ export function LetzteNachrichten({
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [profilesLoading, setProfilesLoading] = useState(false);
 
+  // Neue State-Variablen
+  const [searchTerm, setSearchTerm] = useState('');
+  const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'week'>('all');
+
+  // Optimiertes Laden mit Pagination
+  const [hasMore, setHasMore] = useState(false);
+  const [since, setSince] = useState<number | undefined>(undefined);
+
   // === Memoized Values ===
-  const sortedMessages = useMemo(() => {
-    return messages
-      .sort((a, b) => b.created_at - a.created_at)
-      .slice(0, maxMessages);
-  }, [messages, maxMessages]);
 
   const messageStats = useMemo(() => {
     return {
@@ -77,6 +80,31 @@ export function LetzteNachrichten({
       profilesLoaded: Object.keys(userProfiles).length
     };
   }, [messages, uniquePubkeys, userProfiles]);
+
+  // Gefilterte Nachrichten
+  const filteredMessages = useMemo(() => {
+    return messages
+      .filter(message => {
+        // Textfilter
+        const matchesSearch = searchTerm === '' || 
+          message.content.toLowerCase().includes(searchTerm.toLowerCase());
+        
+        // Datumsfilter
+        const messageDate = new Date(message.created_at * 1000);
+        const today = new Date();
+        const weekAgo = new Date();
+        weekAgo.setDate(today.getDate() - 7);
+        
+        const matchesDate = 
+          dateFilter === 'all' ||
+          (dateFilter === 'today' && messageDate.toDateString() === today.toDateString()) ||
+          (dateFilter === 'week' && messageDate >= weekAgo);
+          
+        return matchesSearch && matchesDate;
+      })
+      .sort((a, b) => b.created_at - a.created_at)
+      .slice(0, maxMessages);
+  }, [messages, searchTerm, dateFilter, maxMessages]);
 
   // === Profile laden (separater Hook) ===
   const loadProfiles = useCallback(async (pubkeys: string[], pool: SimplePool) => {
@@ -118,7 +146,7 @@ export function LetzteNachrichten({
   }, [relay, profileRelays]);
 
   // === Hauptfunktion zum Laden der Gruppendaten ===
-  const fetchGroupData = useCallback(async () => {
+  const fetchGroupData = useCallback(async (loadMore = false) => {
     if (!groupId) return;
     
     let isCancelled = false;
@@ -129,13 +157,14 @@ export function LetzteNachrichten({
     setError(null);
 
     try {
-      console.log('Lade NIP-29 Gruppennachrichten...');
+      console.log(`Lade ${loadMore ? 'weitere' : 'neueste'} NIP-29 Gruppennachrichten...`);
       
-      // 1. Gruppen-Nachrichten (Kind 9) laden
+      // Filter für Nachrichten, mit optionaler Pagination
       const groupMessagesFilter: Filter = {
         kinds: [9],
         '#h': [groupId],
-        limit: 100, // Mehr laden, dann client-seitig limitieren
+        limit: 20,
+        ...(loadMore && since ? { until: since } : {}) // Für ältere Nachrichten
       };
       
       const groupEvents = await pool.querySync(relaysToUse, groupMessagesFilter);
@@ -153,7 +182,7 @@ export function LetzteNachrichten({
         kind: event.kind,
       }));
 
-      setMessages(messageData);
+      setMessages(prevMessages => loadMore ? [...prevMessages, ...messageData] : messageData);
       setLastUpdate(new Date());
 
       // 3. Einzigartige Pubkeys extrahieren
@@ -169,6 +198,18 @@ export function LetzteNachrichten({
         if (!isCancelled) {
           setUserProfiles(prev => ({ ...prev, ...newProfiles }));
         }
+      }
+
+      // Pagination-Status setzen
+      if (groupEvents.length === 20) {
+        setHasMore(true);
+        // Setze since auf die älteste Nachricht für nächste Seite
+        const oldestEvent = [...groupEvents].sort((a, b) => a.created_at - b.created_at)[0];
+        if (oldestEvent) {
+          setSince(oldestEvent.created_at);
+        }
+      } else {
+        setHasMore(false);
       }
 
     } catch (e) {
@@ -206,7 +247,16 @@ export function LetzteNachrichten({
     const profile = userProfiles[message.pubkey];
     const messageDate = new Date(message.created_at * 1000);
     const isToday = messageDate.toDateString() === new Date().toDateString();
+    const [isExpanded, setIsExpanded] = useState(false);
     
+    // Lange Nachrichten abschneiden
+    const shortContent = message.content.length > 300 
+      ? message.content.slice(0, 300) + "..." 
+      : message.content;
+
+    // Verbesserte MessageContent mit Markdown-Support
+    // (Entfernt, da ungenutzt)
+
     return (
       <div key={message.id} className={styles.messageCard}>
         <div className={styles.messageHeader}>
@@ -237,8 +287,20 @@ export function LetzteNachrichten({
           </div>
         </div>
         
-        <div className={styles.messageContent}>
-          {message.content || '<Leere Nachricht>'}
+        <div 
+          className={`${styles.messageContent} ${isExpanded ? styles.expanded : ''}`}
+          onClick={() => message.content.length > 300 && setIsExpanded(!isExpanded)}
+        >
+          {isExpanded || message.content.length <= 300 
+            ? message.content 
+            : <>{shortContent} <span className={styles.readMore}>mehr lesen...</span></>}
+        </div>
+
+        {/* Neues Interaktions-Menü */}
+        <div className={styles.messageActions}>
+          <button className={styles.actionButton} title="Antworten">↩️</button>
+          <button className={styles.actionButton} title="Teilen">🔗</button>
+          <button className={styles.actionButton} title="Melden">⚠️</button>
         </div>
 
         {showDebugInfo && (
@@ -270,7 +332,7 @@ export function LetzteNachrichten({
       <div className={styles.errorContainer}>
         <div className={styles.errorMessage}>❌ {error}</div>
         <button 
-          onClick={fetchGroupData} 
+          onClick={() => fetchGroupData()} 
           className={styles.retryButton}
           disabled={loading}
         >
@@ -279,6 +341,13 @@ export function LetzteNachrichten({
       </div>
     );
   }
+
+  // Funktion zum Laden weiterer Nachrichten
+  const loadMoreMessages = () => {
+    if (loading) return; // Verhindere mehrfaches Laden
+    console.log('Lade ältere Nachrichten...');
+    fetchGroupData(true); // true = loadMore
+  };
 
   // === Main Render ===
   return (
@@ -328,6 +397,26 @@ export function LetzteNachrichten({
         className={`${styles.collapseContent} ${open ? styles.open : ''}`}
         aria-hidden={!open}
       >
+        {/* Suchleiste */}
+        <div className={styles.searchContainer}>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Nachrichten durchsuchen..."
+            className={styles.searchInput}
+          />
+          <select 
+            value={dateFilter} 
+            onChange={(e) => setDateFilter(e.target.value as any)}
+            className={styles.filterSelect}
+          >
+            <option value="all">Alle Nachrichten</option>
+            <option value="today">Heute</option>
+            <option value="week">Letzte Woche</option>
+          </select>
+        </div>
+
         {/* Stats */}
         <div className={styles.statsBar}>
           <span>📊 {messageStats.total} Nachrichten</span>
@@ -342,9 +431,9 @@ export function LetzteNachrichten({
         </div>
 
         {/* Messages */}
-        {sortedMessages.length > 0 ? (
+        {filteredMessages.length > 0 ? (
           <div className={styles.messagesContainer}>
-            {sortedMessages.map(message => (
+            {filteredMessages.map(message => (
               <MessageItem key={message.id} message={message} />
             ))}
             
@@ -361,6 +450,19 @@ export function LetzteNachrichten({
             <div className={styles.noMessagesSubtext}>
               Schreibe die erste Nachricht in diese Gruppe!
             </div>
+          </div>
+        )}
+
+        {/* Load more button */}
+        {hasMore && (
+          <div className={styles.loadMoreContainer}>
+            <button 
+              onClick={loadMoreMessages} // Hier wird die Funktion verwendet
+              className={styles.loadMoreButton}
+              disabled={loading}
+            >
+              {loading ? 'Lädt...' : 'Weitere Nachrichten laden'}
+            </button>
           </div>
         )}
       </div>

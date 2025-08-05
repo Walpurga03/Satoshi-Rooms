@@ -148,12 +148,6 @@
   position: relative;
   overflow: hidden;
 
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(v.$primary, 0.15);
-    border-color: rgba(v.$primary, 0.5);
-  }
-
   &::before {
     content: '';
     position: absolute;
@@ -248,21 +242,46 @@
   }
 }
 
+// === Detaillierte Informationen (scrollbar) ===
 .detailsContent {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.3s ease;
+  transition: max-height 0.5s ease;
 
   &.expanded {
-    max-height: 500px;
+    max-height: 300px; // Feste Höhe für den Scroll-Effekt
+    overflow-y: auto; // Scrollbar hinzufügen
+    scrollbar-width: thin; // Für Firefox
+    scrollbar-color: rgba(v.$primary, 0.5) rgba(v.$surface, 0.5); // Für Firefox
+
+    // Webkit Scrollbar für Chrome, Safari etc.
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: rgba(v.$surface, 0.5);
+      border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(v.$primary, 0.5);
+      border-radius: 4px;
+      
+      &:hover {
+        background: rgba(v.$primary, 0.7);
+      }
+    }
   }
 }
 
 .infoGrid {
-  padding: 2rem;
+  padding: 1.5rem 2rem;
+  padding-right: 1rem; // Platz für die Scrollbar
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
+  // Höhe nicht begrenzen - Container übernimmt das
 }
 
 .infoRow {
@@ -275,10 +294,7 @@
   border-left: 3px solid rgba(v.$primary, 0.3);
   transition: all 0.2s ease;
 
-  &:hover {
-    background: rgba(v.$primary, 0.05);
-    border-left-color: v.$primary;
-  }
+ 
 }
 
 .infoIcon {

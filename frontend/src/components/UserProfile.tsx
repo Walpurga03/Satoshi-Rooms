@@ -9,6 +9,8 @@ type Props = {
   relays: string[];
   groupMembersHex?: string[]; // Optional machen
   showGroupStatus?: boolean; // Optional: Gruppenstatus anzeigen/verstecken
+  onLogout?: () => void; // NEU: Logout-Callback-Funktion
+  showLogout?: boolean; // NEU: Logout-Button anzeigen/verstecken
 };
 
 /**
@@ -19,7 +21,9 @@ export function UserProfile({
   npub, 
   relays, 
   groupMembersHex = [], 
-  showGroupStatus = true 
+  showGroupStatus = true,
+  onLogout,
+  showLogout = false // Standard: Logout-Button nicht anzeigen
 }: Props) {
   const [profile, setProfile] = useState<NostrProfile | null>(null);
   const [loading, setLoading] = useState(false);
@@ -201,17 +205,22 @@ export function UserProfile({
         </span>
       </div>
 
-      {/* Debug Info (nur in Development) */}
-      {import.meta.env.DEV && (
-        <details className={styles.debugInfo}>
-          <summary>Debug Info</summary>
-          <div>
-            <div><strong>Pubkey Hex:</strong> {pubkeyHex}</div>
-            <div><strong>Ist Gruppenmitglied:</strong> {isGroupMember() ? 'Ja' : 'Nein'}</div>
-            <div><strong>Gruppenmitglieder:</strong> {groupMembersHex.length}</div>
-            <div><strong>Relays:</strong> {relays.join(', ')}</div>
-          </div>
-        </details>
+      {/* NEU: Logout-Button mit Debug */}
+      {showLogout && onLogout && (
+        <div className={styles.logoutContainer}>
+          <button 
+            onClick={() => {
+              console.log('🔍 Logout-Button geklickt');
+              onLogout();
+            }}
+            className={styles.logoutButton}
+            aria-label="Vom Konto abmelden"
+            title="Vom Konto abmelden"
+          >
+            <span role="img" aria-hidden="true">🔓</span>
+            <span>Abmelden</span>
+          </button>
+        </div>
       )}
     </div>
   );

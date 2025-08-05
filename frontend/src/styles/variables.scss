@@ -1,3 +1,5 @@
+@use "sass:color";
+
 // Farbpalette
 $primary: #a78bfa; // Nostr Lila
 $primary-dark: #232136; // Dunkles Violett
@@ -8,18 +10,124 @@ $surface: #393552; // Flächen
 $text: #e0def4; // Helles Textweiß
 $text-muted: #6e6a86;
 
-// Schatten
+// Status Farben (ERWEITERT)
+$success: #9ece6a; // Grün für Erfolg
+$warning: #f6c177; // Gelb/Orange für Warnungen  
+$error: #f38ba8; // Rot für Fehler
+$info: #74c7ec; // Blau für Infos
+
+// Zusätzliche Status-Farbtöne (NEU mit modernen SASS Funktionen)
+$success-light: rgba($success, 0.15);
+$success-dark: color.adjust($success, $lightness: -20%);
+$warning-light: rgba($warning, 0.15);
+$warning-dark: color.adjust($warning, $lightness: -20%);
+$error-light: rgba($error, 0.15);
+$error-dark: color.adjust($error, $lightness: -20%);
+$info-light: rgba($info, 0.15);
+$info-dark: color.adjust($info, $lightness: -20%);
+
+// Schatten (ERWEITERT)
 $shadow-main: 0 4px 32px 0 rgba(167,139,250,0.08);
 $shadow-header: 0 2px 16px 0 rgba(167,139,250,0.10);
 $text-shadow-header: 0 2px 8px rgba(167,139,250,0.10);
+$shadow-hover: 0 8px 32px rgba(167,139,250,0.15); // NEU - für Hover-Effekte
+$shadow-card: 0 2px 8px rgba(0,0,0,0.1); // NEU - für Karten
 
-// Layout
+// Layout (ERWEITERT) - Aufgeteilt für bessere Flexibilität
 $card-width: 1580px;
 $border-radius: 12px;
-$container-padding: 3.5rem 4.5rem 3rem 4.5rem;
+$border-radius-small: 8px; // NEU - für kleinere Elemente
+$border-radius-large: 16px; // NEU - für größere Container
 
-// Border
+// Padding System (VERBESSERT)
+$container-padding-top: 3.5rem;
+$container-padding-right: 4.5rem;
+$container-padding-bottom: 3rem;
+$container-padding-left: 4.5rem;
+$container-padding: $container-padding-top $container-padding-right $container-padding-bottom $container-padding-left;
+
+$section-padding: 1.5rem; // NEU - Standard Padding für Sektionen
+$element-spacing: 1rem; // NEU - Standard Abstand zwischen Elementen
+
+// Border (ERWEITERT)
 $border: #2a283a;
+$border-light: #3e3b50; // NEU - hellerer Border
+$border-width: 1.5px; // NEU - Standard Border-Breite
 
-// Transitions
+// Transitions (ERWEITERT)
 $transition-main: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+$transition-fast: 0.1s ease-out; // NEU - für schnelle Animationen
+$transition-slow: 0.3s ease-in-out; // NEU - für langsamere Animationen
+
+// Typography (NEU - für konsistente Schriftgrößen)
+$font-size-xs: 0.75rem;   // 12px
+$font-size-sm: 0.875rem;  // 14px  
+$font-size-base: 1rem;    // 16px
+$font-size-lg: 1.125rem;  // 18px
+$font-size-xl: 1.25rem;   // 20px
+$font-size-2xl: 1.5rem;   // 24px
+$font-size-3xl: 1.875rem; // 30px
+$font-size-4xl: 2.25rem;  // 36px
+
+// Font Weights (NEU)
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+$font-weight-extrabold: 800;
+
+// Z-Index (NEU - für Layer-Management)
+$z-dropdown: 1000;
+$z-sticky: 1020;
+$z-fixed: 1030;
+$z-modal-backdrop: 1040;
+$z-modal: 1050;
+$z-popover: 1060;
+$z-tooltip: 1070;
+
+// Breakpoints (NEU - für Responsive Design)
+$breakpoint-xs: 480px;
+$breakpoint-sm: 640px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+$breakpoint-xl: 1280px;
+$breakpoint-2xl: 1536px;
+
+// Section-spezifische Variablen (NEU)
+$section-border-radius: 2.2rem;
+$section-header-padding: 0.5rem;
+$section-content-padding: 1.2rem;
+$section-margin-bottom: 2.5rem;
+$section-backdrop-blur: 18px;
+
+// Animation Variablen (NEU)
+$collapse-duration: 0.38s;
+$collapse-easing: cubic-bezier(0.4, 0, 0.2, 1);
+$hover-duration: 0.18s;
+
+// Arrow Variablen (NEU)
+$arrow-size: 0.7em;
+$arrow-border-width: 3px;
+$arrow-border-radius: 2px;
+
+// Message Composer Variablen (NEU)
+$composer-border-radius: 0.75rem;
+$composer-padding: 1rem;
+$composer-textarea-min-height: 3rem;
+$composer-button-padding: 0.7rem 1.2rem;
+
+// User Profile Variablen (NEU)
+$profile-card-padding: 3.2rem 4.2rem;
+$profile-image-size: 140px;
+$profile-image-border: 3.5px;
+$profile-font-size: 1.18em;
+
+// Logout Button Variablen (NEU)
+$logout-button-padding: 0.5rem 1.2rem;
+$logout-button-gap: 0.5rem;
+$logout-button-radius: $border-radius-small;
+$logout-margin-top: 1.5rem;
+$logout-font-size: 0.95em;
+$logout-font-weight: $font-weight-semibold;
+

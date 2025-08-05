@@ -140,3 +140,32 @@
   font-size: 11px;
   color: #666;
 }
+
+// Logout-Bereich
+.logoutContainer {
+  margin-top: 1.5rem;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.logoutButton {
+  background: rgba(243, 139, 168, 0.15); // Direkte Farbe für Error-Light
+  color: #c22a47; // Dunkleres Rot
+  border: 1px solid #f38ba8; // Error-Farbe
+  border-radius: 8px;
+  padding: 0.5rem 1.2rem;
+  font-size: 0.95em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  &:hover, &:focus {
+    background: #f38ba8; // Error-Farbe
+    color: white;
+    transform: translateY(-1px);
+  }
+}

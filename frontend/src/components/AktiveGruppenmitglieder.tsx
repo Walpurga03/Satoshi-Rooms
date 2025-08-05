@@ -313,6 +313,14 @@ export function AktiveGruppenmitglieder({
             {profile?.display_name || profile?.name || `User ${pubkey.slice(0, 8)}`}
           </div>
           
+          {/* NEU: Aktivitäts-Level Badge */}
+          {showStats && stats && (
+            <div className={styles.activityBadge} 
+                 data-level={stats.messageCount > 20 ? "high" : stats.messageCount > 5 ? "medium" : "low"}>
+              {stats.messageCount > 20 ? "Sehr aktiv" : stats.messageCount > 5 ? "Aktiv" : "Neu"}
+            </div>
+          )}
+          
           {profile?.nip05 && (
             <div className={styles.memberVerified}>
               ✓ {profile.nip05}
@@ -386,6 +394,29 @@ export function AktiveGruppenmitglieder({
       </div>
     );
   }
+
+  // Virtualisierte Liste für sehr viele Mitglieder
+  const renderMemberCards = () => {
+    // Wenn zu viele Mitglieder, nur die sichtbaren rendern
+    if (sortedMembers.length > 50) {
+      return (
+        <div className={styles.virtualizedContainer}>
+          {sortedMembers.slice(0, 20).map(pubkey => (
+            <MemberCard key={pubkey} pubkey={pubkey} />
+          ))}
+          <button 
+            className={styles.loadMoreButton}
+            onClick={() => setCurrentMaxMembers(prev => Math.min(prev + 20, uniquePubkeys.length))}
+          >
+            Weitere laden ({Math.min(20, uniquePubkeys.length - currentMaxMembers)})
+          </button>
+        </div>
+      );
+    }
+    
+    // Sonst normal rendern
+    return sortedMembers.map(pubkey => <MemberCard key={pubkey} pubkey={pubkey} />);
+  };
 
 // === Main Render ===
 return (
@@ -476,9 +507,7 @@ return (
     <div className={`${styles.membersContainer} ${isExpanded ? styles.expanded : styles.collapsed}`}>
       {sortedMembers.length > 0 ? (
         <div className={styles.membersGrid}>
-          {sortedMembers.map(pubkey => (
-            <MemberCard key={pubkey} pubkey={pubkey} />
-          ))}
+          {renderMemberCards()}
           
           {/* Show more hint wenn limitiert */}
           {uniquePubkeys.length > currentMaxMembers && (
@@ -547,41 +576,6 @@ return (
             <span className={styles.summaryLabel}>Nachrichten</span>
           </div>
         </div>
-      </div>
-    )}
-
-    {/* Debug Info (nur in Development) */}
-    {import.meta.env.DEV && isExpanded && (
-      <div className={styles.debugCard}>
-        <details className={styles.debugDetails}>
-          <summary className={styles.debugSummary}>🐛 Debug - Mitglieder</summary>
-          <div className={styles.debugContent}>
-            <div><strong>Gefundene User:</strong> {uniquePubkeys.length}</div>
-            <div><strong>Geladene Profile:</strong> {Object.keys(userProfiles).length}</div>
-            <div><strong>Nachrichten analysiert:</strong> {messages.length}</div>
-            <div><strong>Administratoren:</strong> {groupAdmins.length}</div>
-            <div><strong>Suchbegriff:</strong> {searchTerm || '(leer)'}</div>
-            <div><strong>Sortierung:</strong> {sortBy}</div>
-            <div><strong>Angezeigte Mitglieder:</strong> {sortedMembers.length}</div>
-            
-            {memberStats.length > 0 && (
-              <div>
-                <strong>Top 5 aktivste Mitglieder:</strong>
-                <ul className={styles.debugList}>
-                  {memberStats
-                    .sort((a, b) => b.messageCount - a.messageCount)
-                    .slice(0, 5)
-                    .map(stat => (
-                      <li key={stat.pubkey}>
-                        {userProfiles[stat.pubkey]?.display_name || stat.pubkey.slice(0, 8)}: {stat.messageCount} Nachrichten
-                      </li>
-                    ))
-                  }
-                </ul>
-              </div>
-            )}
-          </div>
-        </details>
       </div>
     )}
   </div>

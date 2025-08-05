@@ -1,113 +1,240 @@
 @use '../styles/variables' as v;
 @use '../styles/mixins' as m;
 
+/**
+ * Hauptcontainer für Section-Karten
+ * Verwendet Glasmorphism-Design mit Backdrop-Filter
+ */
 .sectionCard {
-  background: linear-gradient(120deg, rgba(v.$surface,0.92) 60%, rgba(v.$background,0.98) 100%);
-  border-radius: 2.2rem;
-  box-shadow:
-    0 8px 40px 0 rgba(v.$primary,0.13),
-    0 1.5px 8px 0 rgba(v.$primary,0.07),
-    0 0.5px 0.5px 0 rgba(v.$primary,0.04);
-  padding: 2.5rem 3.5rem 2.5rem 3.5rem;
-  color: v.$text;
+  // Layout & Sizing
   width: min(98vw, v.$card-width);
-  margin-bottom: 2.5rem;
+  max-width: 100%;
+  margin-bottom: v.$section-margin-bottom;
+  padding: v.$section-padding calc(v.$section-padding * 1.5);
+  box-sizing: border-box;
+  
+  // Visual Design
+  background: linear-gradient(120deg, rgba(v.$surface, 0.92) 60%, rgba(v.$background, 0.98) 100%);
+  border: v.$border-width solid rgba(v.$primary, 0.13);
+  border-radius: v.$section-border-radius;
+  color: v.$text;
+  
+  // Glasmorphism Effect
+  backdrop-filter: blur(v.$section-backdrop-blur) saturate(1.2);
+  -webkit-backdrop-filter: blur(v.$section-backdrop-blur) saturate(1.2);
+  
+  // Shadow System
+  box-shadow: 
+    0 8px 40px 0 rgba(v.$primary, 0.13),
+    0 1.5px 8px 0 rgba(v.$primary, 0.07),
+    0 0.5px 0.5px 0 rgba(v.$primary, 0.04);
+  
+  // Layout
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 1.5px solid rgba(v.$primary, 0.13);
-  font-size: 1.13em;
-  box-sizing: border-box;
   position: relative;
-  backdrop-filter: blur(18px) saturate(1.2);
-  -webkit-backdrop-filter: blur(18px) saturate(1.2);
   overflow: hidden;
+  
+  // Typography
+  font-size: v.$font-size-lg;
+  
+  // Responsive Design
+  @media (max-width: v.$breakpoint-lg) {
+    width: min(96vw, v.$card-width);
+    padding: calc(v.$section-padding * 0.8) v.$section-padding;
+    font-size: v.$font-size-base;
+  }
+  
+  @media (max-width: v.$breakpoint-md) {
+    width: min(94vw, v.$card-width);
+    padding: calc(v.$section-padding * 0.6) calc(v.$section-padding * 0.8);
+    margin-bottom: calc(v.$section-margin-bottom * 0.8);
+  }
 }
 
+/**
+ * Klickbarer Header-Bereich für Collapse-Funktionalität
+ */
 .collapseHeader {
-  width: v.$card-width;
+  width: 100%;
   display: flex;
   align-items: center;
   margin-bottom: 0.2rem;
+  padding: v.$section-header-padding;
+  
+  // Interaktivität
   cursor: pointer;
   user-select: none;
-  border-radius: 18px;
-  transition: background 0.18s;
+  border-radius: v.$border-radius-large;
+  transition: background v.$hover-duration ease-out;
   box-sizing: border-box;
-  &:hover, &:focus {
+  
+  // Focus & Hover States
+  &:hover,
+  &:focus-visible {
     background: rgba(v.$primary, 0.08);
+    outline: none;
+  }
+  
+  &:focus-visible {
+    box-shadow: 0 0 0 2px rgba(v.$primary, 0.3);
+  }
+  
+  // Active State
+  &:active {
+    background: rgba(v.$primary, 0.12);
+    transform: scale(0.99);
+  }
+  
+  // Responsive
+  @media (max-width: v.$breakpoint-md) {
+    padding: calc(v.$section-header-padding * 0.75);
   }
 }
+
+/**
+ * Headline innerhalb des Headers
+ */
 .collapseHeadline {
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  font-size: 2.1rem;
-  font-weight: 800;
-  color: v.$primary;
-  letter-spacing: 0.01em;
   gap: 0.7rem;
   margin: 0;
-  padding: 0.5rem 0 0.5rem 0.5rem;
-  border-radius: 18px;
-  transition: color 0.18s;
+  
+  // Typography
+  font-size: v.$font-size-3xl;
+  font-weight: v.$font-weight-extrabold;
+  color: v.$primary;
+  letter-spacing: 0.01em;
+  
+  // Transitions
+  transition: color v.$hover-duration ease-out;
+  
+  // Responsive Typography
+  @media (max-width: v.$breakpoint-lg) {
+    font-size: v.$font-size-2xl;
+  }
+  
+  @media (max-width: v.$breakpoint-md) {
+    font-size: v.$font-size-xl;
+    gap: 0.5rem;
+  }
+  
+  @media (max-width: v.$breakpoint-sm) {
+    font-size: v.$font-size-lg;
+  }
 }
+
+/**
+ * Animierter Pfeil für Collapse-Status
+ */
 .collapseArrow {
   display: inline-block;
   width: 1.5em;
   height: 1.5em;
   margin-left: 0.2em;
-  background: none;
-  border: none;
-  pointer-events: none;
   position: relative;
+  pointer-events: none;
+  
+  // Pfeil-Design mit ::before Pseudo-Element
   &::before {
     content: '';
     display: block;
-    width: 0.7em;
-    height: 0.7em;
-    border-right: 3px solid v.$primary;
-    border-bottom: 3px solid v.$primary;
-    border-radius: 2px;
-    transform: rotate(45deg);
-    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+    width: v.$arrow-size;
+    height: v.$arrow-size;
+    border-right: v.$arrow-border-width solid v.$primary;
+    border-bottom: v.$arrow-border-width solid v.$primary;
+    border-radius: v.$arrow-border-radius;
+    
+    // Positioning & Animation
     position: absolute;
     left: 0.35em;
     top: 0.25em;
+    transform: rotate(45deg);
+    transition: transform v.$collapse-duration v.$collapse-easing;
+  }
+  
+  // Responsive Arrow Size
+  @media (max-width: v.$breakpoint-md) {
+    width: 1.2em;
+    height: 1.2em;
+    
+    &::before {
+      width: calc(v.$arrow-size * 0.85);
+      height: calc(v.$arrow-size * 0.85);
+      border-width: calc(v.$arrow-border-width * 0.85);
+    }
   }
 }
-[aria-expanded='true'] .collapseArrow::before {
-  transform: rotate(135deg);
-  top: 0.45em;
+
+/**
+ * Animierter Zustand für offenen Pfeil
+ */
+.collapseArrowOpen {
+  &::before {
+    transform: rotate(225deg);
+    top: 0.45em;
+  }
 }
-// Collapsible content (closed)
+
+/**
+ * Kollabierter Content-Bereich (geschlossen)
+ */
 .collapseContent {
-  width: v.$card-width;
+  width: 100%;
   max-height: 0;
   overflow: hidden;
   box-sizing: border-box;
-  transition: max-height 0.38s cubic-bezier(0.4,0,0.2,1), padding 0.22s;
-  padding-top: 0;
-  padding-bottom: 0;
-  opacity: 0.7;
+  
+  // Smooth Transitions
+  transition: 
+    max-height v.$collapse-duration v.$collapse-easing,
+    padding v.$transition-main,
+    opacity v.$transition-main;
+  
+  padding: 0;
+  opacity: 0;
 }
 
-// Collapsible content (open)
+/**
+ * Expandierter Content-Bereich (geöffnet)
+ */
 .collapseContentOpen {
-  width: v.$card-width;
-  max-height: 900px;
+  width: 100%;
+  max-height: 1200px; // Erhöht für größere Inhalte
   overflow: visible;
   box-sizing: border-box;
-  transition: max-height 0.38s cubic-bezier(0.4,0,0.2,1), padding 0.22s;
-  padding-top: 1.2rem;
-  padding-bottom: 1.2rem;
+  
+  // Smooth Transitions
+  transition: 
+    max-height v.$collapse-duration v.$collapse-easing,
+    padding v.$transition-main,
+    opacity v.$transition-main;
+  
+  padding: v.$section-content-padding 0;
   opacity: 1;
+  
+  // Responsive Padding
+  @media (max-width: v.$breakpoint-md) {
+    padding: calc(v.$section-content-padding * 0.8) 0;
+  }
 }
 
-.collapseHeader {
-  cursor: pointer;
-  user-select: none;
-  // ...existing code...
+/**
+ * Innerer Container für Content
+ */
+.collapseContentInner {
+  width: 100%;
+  
+  // Verhindert Layout-Shifts während Animation
+  min-height: 0;
+  
+  // Responsive Anpassungen
+  @media (max-width: v.$breakpoint-sm) {
+    font-size: v.$font-size-sm;
+  }
 }

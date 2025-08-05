@@ -468,33 +468,6 @@ return (
       />
     </div>
 
-    {/* Gruppen-Status */}
-    <div className={styles.statusCard}>
-      <div className={styles.statusGrid}>
-        <div className={styles.statusItem}>
-          <span className={styles.statusIcon}>
-            {groupMetadata?.public !== false ? '🌐' : '🔒'}
-          </span>
-          <span className={styles.statusLabel}>
-            {groupMetadata?.public !== false ? 'Öffentliche Gruppe' : 'Private Gruppe'}
-          </span>
-        </div>
-        <div className={styles.statusItem}>
-          <span className={styles.statusIcon}>
-            {groupMetadata?.closed ? '🔐' : '🚪'}
-          </span>
-          <span className={styles.statusLabel}>
-            {groupMetadata?.closed ? 'Geschlossen' : 'Beitritt möglich'}
-          </span>
-        </div>
-        <div className={styles.statusItem}>
-          <span className={styles.statusIcon}>📡</span>
-          <span className={styles.statusLabel}>
-            {groupRelay ? 'Dedicated Relay' : 'Standard Relay'}
-          </span>
-        </div>
-      </div>
-    </div>
 
     {/* Detaillierte Informationen */}
     <div className={styles.detailsCard}>
@@ -590,29 +563,6 @@ return (
       </div>
     </div>
 
-    {/* Debug-Informationen (nur in Development) */}
-    {import.meta.env.DEV && (
-      <div className={styles.debugCard}>
-        <details className={styles.debugDetails}>
-          <summary className={styles.debugSummary}>🐛 Debug Informationen</summary>
-          <div className={styles.debugContent}>
-            <div><strong>Metadaten geladen:</strong> {groupMetadata ? 'Ja' : 'Nein'}</div>
-            <div><strong>Anzahl Admins:</strong> {groupAdmins.length}</div>
-            <div><strong>Nachrichten Events:</strong> {messages.length}</div>
-            <div><strong>Profile Events:</strong> {Object.keys(userProfiles).length}</div>
-            <div><strong>Relays verwendet:</strong> {groupRelay ? [groupRelay] : [relay]}</div>
-            {groupMetadata && (
-              <div>
-                <strong>Metadaten:</strong>
-                <pre className={styles.debugJson}>
-                  {JSON.stringify(groupMetadata, null, 2)}
-                </pre>
-              </div>
-            )}
-          </div>
-        </details>
-      </div>
-    )}
   </div>
 );
 }

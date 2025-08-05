@@ -1,102 +1,233 @@
 @use '../styles/variables' as v;
 @use '../styles/mixins' as m;
 
+// =============================
+// MessageComposer - Moderne Styles
+// =============================
+
 .composerCard {
-  @include m.card;
-  background: linear-gradient(120deg, rgba(v.$accent,0.18) 0%, rgba(v.$primary,0.13) 60%, rgba(v.$surface,0.95) 100%);
-  box-shadow:
-    0 8px 40px 0 rgba(v.$primary,0.13),
-    0 1.5px 8px 0 rgba(v.$accent,0.09),
-    0 0.5px 0.5px 0 rgba(v.$primary,0.03);
-  border: 2.5px solid v.$accent;
-  padding: 2.2rem 2.5rem;
-  color: v.$text;
-  width: min(90%, v.$card-width);
-  margin: 2.5rem auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-size: 1.13em;
-  box-sizing: border-box;
-  position: relative;
-  z-index: 2;
-}
-
-.composerRow {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  width: 100%;
-}
-
-.composerInput {
-  flex: 1;
-  padding: 0.7em 1em;
-  border-radius: 0.7em;
-  border: 1.5px solid v.$primary;
-  font-size: 1.1em;
-  background: v.$surface;
-  color: v.$text;
-  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-}
-
-.composerButton {
-  padding: 0.7em 1.4em;
-  border-radius: 0.7em;
-  border: none;
-  background: v.$primary;
-  color: #fff;
-  font-weight: 600;
-  font-size: 1.1em;
-  cursor: pointer;
-  transition: background 0.18s;
-  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-  &:hover, &:focus {
-    background: v.$accent;
-    color: v.$primary-dark;
+  background: rgba(v.$surface, 0.9);
+  border: 1px solid v.$border;
+  border-radius: v.$composer-border-radius;
+  padding: v.$composer-padding;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  
+  // Subtiler Hover-Effekt
+  &:focus-within {
+    border-color: v.$primary;
+    box-shadow: 0 5px 20px rgba(v.$primary, 0.15);
   }
 }
 
-// MessageComposer.module.scss - Ergänzungen
+// Hauptzeile mit Input & Button
+.composerRow {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+  position: relative;
+}
+
+// Texteingabefeld
+.composerInput {
+  flex: 1;
+  background: rgba(v.$primary-dark, 0.4);
+  color: v.$text;
+  border: 1px solid rgba(v.$primary, 0.3);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  font-size: 1rem;
+  min-height: v.$composer-textarea-min-height;
+  resize: vertical; // Ermöglicht vertikale Größenänderung
+  transition: all 0.25s ease;
+  
+  &::placeholder {
+    color: v.$text-muted;
+  }
+  
+  &:focus {
+    outline: none;
+    border-color: v.$primary;
+    box-shadow: 0 0 0 2px rgba(v.$primary, 0.15);
+    background: rgba(v.$primary-dark, 0.5);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: rgba(v.$primary-dark, 0.2);
+  }
+}
+
+// Senden-Button
+.composerButton {
+  background: v.$primary;
+  color: v.$primary-dark;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  padding: v.$composer-button-padding;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+  
+  // Animiertes Hintergrund-Highlight
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+  }
+  
+  &:hover:not(:disabled) {
+    background: adjust(v.$primary, 5%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(v.$primary, 0.3);
+    
+    &::before {
+      left: 100%;
+    }
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(v.$primary, 0.2);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: adjust(v.$primary, 40%);
+  }
+  
+  // Senden-Icon
+  &::after {
+    content: '↗';
+    margin-left: 0.4rem;
+    font-size: 1.1em;
+    transition: transform 0.2s ease;
+  }
+  
+  &:hover:not(:disabled)::after {
+    transform: translateX(2px) translateY(-2px);
+  }
+}
+
+// Meta-Informationen
 .composerMeta {
   display: flex;
-  justify-content: flex-end;
-  margin-top: 4px;
-  font-size: 12px;
-  color: #666;
-
+  justify-content: space-between;
+  margin-top: 0.8rem;
+  color: v.$text-muted;
+  font-size: 0.85em;
+  padding: 0 0.2rem;
+  
   .warning {
-    color: #f59e0b;
+    color: v.$warning;
+    font-weight: 600;
+  }
+  
+  .error {
+    color: v.$error;
     font-weight: 600;
   }
 }
 
+// Status-Anzeigen
+.composerSuccess {
+  margin-top: 0.8rem;
+  padding: 0.6rem 1rem;
+  background: rgba(v.$success, 0.15);
+  color: v.$success;
+  border-radius: 6px;
+  font-size: 0.9em;
+  animation: fadeIn 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.composerError {
+  margin-top: 0.8rem;
+  padding: 0.6rem 1rem;
+  background: rgba(v.$error, 0.15);
+  color: v.$error;
+  border-radius: 6px;
+  font-size: 0.9em;
+  animation: fadeIn 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+// Debug-Informationen
 .composerDebug {
-  margin-top: 8px;
-  font-size: 11px;
-  color: #999;
+  margin-top: 0.8rem;
+  color: v.$text-muted;
+  font-size: 0.75em;
+  padding: 0 0.2rem;
   opacity: 0.7;
 }
 
-.composerButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+// Emoji-Picker Bereich
+.emojiPickerWrapper {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  right: 0;
+  z-index: 100;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  overflow: hidden;
+  animation: slideUp 0.3s ease;
 }
 
-.composerSuccess {
-  color: #1b8a3a;
-  margin-top: 0.7em;
-  font-weight: 600;
+.emojiButton {
+  background: transparent;
+  color: v.$text-muted;
+  border: none;
+  font-size: 1.2em;
+  cursor: pointer;
+  padding: 0.3rem;
+  margin-right: 0.2rem;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    color: v.$text;
+    background: rgba(v.$primary, 0.15);
+  }
 }
 
-// MessageComposer.module.scss - Ergänzung
-.composerSuccess {
-  margin-top: 8px;
-  padding: 8px 12px;
-  background-color: #dcfce7;
-  border: 1px solid #16a34a;
-  border-radius: 6px;
-  color: #166534;
-  font-size: 14px;
-  font-weight: 500;
+// Animationen
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+// Responsive Design
+@media (max-width: v.$breakpoint-sm) {
+  .composerRow {
+    flex-direction: column;
+  }
+  
+  .composerInput {
+    width: 100%;
+  }
+  
+  .composerButton {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    margin-top: 0.5rem;
+  }
 }

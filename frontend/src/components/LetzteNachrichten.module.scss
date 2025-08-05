@@ -268,6 +268,8 @@
   line-height: 1.5;
   word-wrap: break-word;
   white-space: pre-wrap;
+  position: relative;
+  transition: all 0.3s ease;
   
   // Style für verschiedene Content-Typen
   &:empty::before {
@@ -275,15 +277,242 @@
     color: v.$text-muted;
     font-style: italic;
   }
+  
+  &.expanded {
+    max-height: none;
+    
+    // Gradient-Effekt für lange Nachrichten
+    &::after {
+      display: none;
+    }
+  }
+  
+  // Gradient-Effekt für abgeschnittene Nachrichten
+  &:not(.expanded):not(:empty) {
+    cursor: pointer;
+    
+    // Für lange abgeschnittene Nachrichten
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 30px;
+      background: linear-gradient(transparent, rgba(v.$surface, 0.8));
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    
+    &:hover::after {
+      opacity: 1;
+    }
+  }
+  
+  .readMore {
+    color: v.$primary;
+    cursor: pointer;
+    font-weight: 500;
+    background: rgba(v.$primary, 0.1);
+    padding: 0.2em 0.5em;
+    border-radius: 4px;
+    margin-left: 0.3em;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: rgba(v.$primary, 0.2);
+      transform: translateY(-1px);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+  }
 }
 
-.debugInfo {
-  margin-top: 0.8rem;
-  padding-top: 0.8rem;
+.messageLink {
+  color: v.$primary;
+  text-decoration: none;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.mentionTag {
+  color: v.$primary;
+  font-weight: 500;
+  background: rgba(v.$primary, 0.1);
+  padding: 0.1em 0.3em;
+  border-radius: 4px;
+}
+
+// Aktionsbuttons unter jeder Nachricht
+.messageActions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  opacity: 0;
+  transform: translateY(5px);
+  transition: all 0.3s ease;
+  
+  .messageCard:hover & {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.actionButton {
+  background: rgba(v.$primary-dark, 0.5);
+  border: 1px solid v.$border;
+  font-size: 1em;
+  cursor: pointer;
+  padding: 0.4em 0.6em;
+  border-radius: 6px;
+  color: v.$text;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(v.$primary, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// =========================
+// Load More Button - VERBESSERT
+// =========================
+
+.loadMoreContainer {
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: center;
   border-top: 1px solid v.$border;
-  font-size: 0.8em;
-  color: v.$text-muted;
-  font-family: monospace;
+  background: linear-gradient(to bottom, transparent, rgba(v.$primary-dark, 0.15));
+}
+
+.loadMoreButton {
+  background: rgba(v.$primary, 0.15);
+  color: v.$primary;
+  border: 1px solid v.$primary;
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 0.8rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg, 
+      transparent, 
+      rgba(v.$primary, 0.1), 
+      transparent
+    );
+    transition: all 0.5s ease;
+  }
+  
+  &:hover {
+    background: rgba(v.$primary, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(v.$primary, 0.2);
+    
+    &::before {
+      left: 100%;
+    }
+  }
+  
+  &:active {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    
+    &::before {
+      display: none;
+    }
+  }
+}
+
+// =========================
+// Suchleiste & Filter - NEU
+// =========================
+
+.searchContainer {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid v.$border;
+  background: rgba(v.$primary-dark, 0.3);
+}
+
+.searchInput {
+  flex: 1;
+  padding: 0.8rem 1.2rem;
+  background: rgba(v.$surface, 0.8);
+  color: v.$text;
+  border: 1px solid v.$border;
+  border-radius: 8px;
+  font-size: 0.95em;
+  transition: all 0.2s ease;
+  
+  &:focus {
+    outline: none;
+    border-color: v.$primary;
+    box-shadow: 0 0 0 2px rgba(v.$primary, 0.25);
+  }
+  
+  &::placeholder {
+    color: v.$text-muted;
+  }
+}
+
+.filterSelect {
+  padding: 0.8rem 1.2rem;
+  padding-right: 2.5rem; // Platz für den Dropdown-Pfeil
+  background: rgba(v.$surface, 0.8);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a78bfa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.8rem center;
+  color: v.$text;
+  border: 1px solid v.$border;
+  border-radius: 8px;
+  font-size: 0.95em;
+  appearance: none;
+  transition: all 0.2s ease;
+  min-width: 160px;
+  cursor: pointer;
+  
+  &:focus {
+    outline: none;
+    border-color: v.$primary;
+    box-shadow: 0 0 0 2px rgba(v.$primary, 0.25);
+  }
+  
+  option {
+    background: v.$surface;
+    color: v.$text;
+  }
 }
 
 // =========================
@@ -447,6 +676,38 @@
 
   .memberName {
     font-size: 1em;
+  }
+  
+  .searchContainer {
+    padding: 1rem 1.5rem;
+    flex-direction: column;
+  }
+  
+  .searchInput, 
+  .filterSelect {
+    width: 100%;
+    padding: 0.7rem 1rem;
+  }
+  
+  .messageActions {
+    margin-top: 0.8rem;
+    
+    // Immer sichtbar auf kleinen Geräten
+    opacity: 1;
+    transform: none;
+  }
+  
+  .actionButton {
+    padding: 0.3em 0.5em;
+  }
+  
+  .loadMoreContainer {
+    padding: 1rem 1.5rem;
+  }
+  
+  .loadMoreButton {
+    width: 100%;
+    padding: 0.7rem 1rem;
   }
 }
 

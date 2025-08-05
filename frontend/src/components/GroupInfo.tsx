@@ -147,10 +147,8 @@ export function GroupInfo({
     setError(null);
 
     try {
-      console.log('🔄 Lade NIP-29 Gruppendaten...');
       
       // 1. Gruppen-Metadaten laden (Kind 39000)
-      console.log('📋 Suche Gruppen-Metadaten...');
       const metadataFilter: Filter = {
         kinds: [39000],
         '#h': [groupId],
@@ -158,7 +156,6 @@ export function GroupInfo({
       };
       
       const metadataEvents = await pool.querySync(relaysToUse, metadataFilter);
-      console.log(`📋 ${metadataEvents.length} Metadaten-Events gefunden`);
       
       if (metadataEvents.length > 0 && !isCancelled) {
         // Neuestes Metadaten-Event nehmen
@@ -166,14 +163,12 @@ export function GroupInfo({
         try {
           const metadata = JSON.parse(latestMetadata.content);
           setGroupMetadata(metadata);
-          console.log('📋 Gruppen-Metadaten:', metadata);
         } catch (e) {
           console.error('Fehler beim Parsen der Gruppen-Metadaten:', e);
         }
       }
 
       // 2. Gruppen-Administratoren laden (Kind 39001)
-      console.log('👑 Suche Gruppen-Administratoren...');
       const adminsFilter: Filter = {
         kinds: [39001],
         '#h': [groupId],
@@ -181,7 +176,6 @@ export function GroupInfo({
       };
       
       const adminEvents = await pool.querySync(relaysToUse, adminsFilter);
-      console.log(`👑 ${adminEvents.length} Admin-Events gefunden`);
       
       if (adminEvents.length > 0 && !isCancelled) {
         const latestAdminEvent = adminEvents.sort((a, b) => b.created_at - a.created_at)[0];
@@ -196,14 +190,12 @@ export function GroupInfo({
             }));
           
           setGroupAdmins(adminPubkeys);
-          console.log('👑 Gruppen-Administratoren:', adminPubkeys);
         } catch (e) {
           console.error('Fehler beim Parsen der Admin-Daten:', e);
         }
       }
 
       // 3. Gruppen-Nachrichten laden (Kind 9)
-      console.log('💬 Suche Gruppen-Nachrichten...');
       const groupMessagesFilter: Filter = {
         kinds: [9],
         '#h': [groupId],
@@ -211,7 +203,6 @@ export function GroupInfo({
       };
       
       const groupEvents = await pool.querySync(relaysToUse, groupMessagesFilter);
-      console.log(`💬 ${groupEvents.length} Nachrichten gefunden`);
 
       if (isCancelled) return;
 
@@ -235,7 +226,6 @@ export function GroupInfo({
 
       // 5. Profile für alle User laden
       if (allUsers.length > 0) {
-        console.log(`👤 Lade Profile für ${allUsers.length} User...`);
         const profilesFilter: Filter = {
           kinds: [0],
           authors: allUsers,
@@ -257,7 +247,6 @@ export function GroupInfo({
         
         if (!isCancelled) {
           setUserProfiles(profiles);
-          console.log(`👤 ${Object.keys(profiles).length} Profile geladen`);
         }
       }
 
@@ -285,7 +274,6 @@ export function GroupInfo({
     if (!autoRefresh) return;
 
     const interval = setInterval(() => {
-      console.log('🔄 Auto-Refresh der Gruppendaten...');
       fetchGroupData();
     }, refreshInterval * 1000);
 

@@ -67,14 +67,12 @@ export function MessageComposer({
         }, 5000);
 
         ws.onopen = () => {
-          console.log('📤 Verbindung zum Relay hergestellt, sende Event...');
           ws.send(JSON.stringify(['EVENT', signedEvent]));
         };
 
         ws.onmessage = (event) => {
           try {
             const message = JSON.parse(event.data);
-            console.log('📥 Relay-Antwort:', message);
             if (message[0] === 'OK' && message[1] === signedEvent.id) {
               responseReceived = true;
               clearTimeout(timeout);
@@ -98,7 +96,6 @@ export function MessageComposer({
 
         ws.onclose = () => {
           if (!responseReceived) {
-            console.log('WebSocket wurde geschlossen ohne Antwort');
             clearTimeout(timeout);
             resolve(false);
           }
@@ -121,7 +118,6 @@ export function MessageComposer({
     try {
       const privkeyBytes = hexToBytes(privkey);
       const pubkeyHex = getPublicKey(privkeyBytes);
-      console.log('📤 Sende NIP-29 Gruppennachricht...');
       
       const event = {
         kind: 9,
@@ -133,15 +129,12 @@ export function MessageComposer({
         content: text.trim(),
       };
 
-      console.log('✅ NIP-29 Event erstellt:', event);
       const signedEvent = finalizeEvent(event, privkeyBytes);
-      console.log('✅ NIP-29 Event signiert:', signedEvent);
 
       // Nur an das Gruppen-Relay senden!
       const sendResult = await sendToRelay(groupRelay, signedEvent);
 
       if (sendResult) {
-        console.log('🎉 ✅ Nachricht erfolgreich an Group-Relay gesendet!');
         setSuccess('✅ Nachricht erfolgreich gesendet!');
         setText('');
         if (onSend) onSend(text.trim());

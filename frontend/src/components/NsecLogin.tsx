@@ -32,16 +32,11 @@ export function NsecLogin({ onLogin }: Props) {
 
   const handleLogin = () => {
     try {
-      console.log('Eingegebener nsec:', nsec);
       const { type, data } = nip19.decode(nsec.trim());
-      console.log('Decoded:', { type, data });
       if (type !== 'nsec') throw new Error('Kein gültiger nsec!');
       const privkey = bytesToHex(data);
       const pubkey = getPublicKey(data); // hex
       const npub = nip19.npubEncode(pubkey); // npub-Format
-      console.log('Privkey (hex):', privkey);
-      console.log('Pubkey (hex):', pubkey);
-      console.log('Abgeleitete npub:', npub);
       localStorage.setItem('nsec', nsec); // <-- Speichern!
       onLogin(privkey, npub); // <-- npub-Format!
       setError('');

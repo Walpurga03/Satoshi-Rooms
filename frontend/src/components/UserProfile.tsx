@@ -66,7 +66,6 @@ export function UserProfile({
     setError(null);
     
     try {
-      console.log(`Lade Profil für ${npub}...`);
       const { profile } = await fetchProfileAndEvents({ 
         npub, 
         relays, 
@@ -74,7 +73,6 @@ export function UserProfile({
       });
       
       setProfile(profile);
-      console.log('Profil geladen:', profile);
     } catch (e: any) {
       console.error('Fehler beim Laden des Profils:', e);
       setError(e?.message || 'Fehler beim Laden des Profils');
@@ -210,7 +208,6 @@ export function UserProfile({
         <div className={styles.logoutContainer}>
           <button 
             onClick={() => {
-              console.log('🔍 Logout-Button geklickt');
               onLogout();
             }}
             className={styles.logoutButton}

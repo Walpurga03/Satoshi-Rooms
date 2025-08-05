@@ -118,13 +118,11 @@ export function LetzteNachrichten({
     };
 
     try {
-      console.log('Lade Profile für', pubkeys.length, 'User...');
       
       // Kombiniere alle verfügbaren Relays
       const allRelays = [...new Set([relay, ...profileRelays, ...PROFILE_RELAYS])];
       
       const profileEvents = await pool.querySync(allRelays, profilesFilter);
-      console.log(`${profileEvents.length} Profile von ${allRelays.length} Relays geladen`);
 
       const profiles: Record<string, UserProfile> = {};
       profileEvents.forEach(event => {
@@ -157,7 +155,6 @@ export function LetzteNachrichten({
     setError(null);
 
     try {
-      console.log(`Lade ${loadMore ? 'weitere' : 'neueste'} NIP-29 Gruppennachrichten...`);
       
       // Filter für Nachrichten, mit optionaler Pagination
       const groupMessagesFilter: Filter = {
@@ -168,7 +165,6 @@ export function LetzteNachrichten({
       };
       
       const groupEvents = await pool.querySync(relaysToUse, groupMessagesFilter);
-      console.log(`${groupEvents.length} Gruppennachrichten gefunden`);
 
       if (isCancelled) return;
 
@@ -192,7 +188,6 @@ export function LetzteNachrichten({
       // 4. Profile laden (nur wenn neue User gefunden)
       const newUsers = uniqueKeys.filter(pubkey => !userProfiles[pubkey]);
       if (newUsers.length > 0) {
-        console.log(`Lade Profile für ${newUsers.length} neue User...`);
         const newProfiles = await loadProfiles(newUsers, pool);
         
         if (!isCancelled) {
@@ -214,7 +209,6 @@ export function LetzteNachrichten({
 
     } catch (e) {
       if (!isCancelled) {
-        console.error('Fehler beim Laden der Gruppendaten:', e);
         setError(e instanceof Error ? e.message : 'Unbekannter Fehler');
       }
     } finally {
@@ -235,7 +229,6 @@ export function LetzteNachrichten({
     if (!autoRefresh) return;
 
     const interval = setInterval(() => {
-      console.log('Auto-Refresh der Nachrichten...');
       fetchGroupData();
     }, refreshInterval * 1000);
 
@@ -345,7 +338,6 @@ export function LetzteNachrichten({
   // Funktion zum Laden weiterer Nachrichten
   const loadMoreMessages = () => {
     if (loading) return; // Verhindere mehrfaches Laden
-    console.log('Lade ältere Nachrichten...');
     fetchGroupData(true); // true = loadMore
   };
 

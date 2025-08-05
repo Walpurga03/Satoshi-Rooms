@@ -21,7 +21,6 @@ function App() {
 
   // Vereinfachter Logout-Handler
   const handleLogout = useCallback(() => {
-    console.log('🚪 Benutzer wird abgemeldet...');
     
     // LocalStorage leeren
     localStorage.clear(); // Alles löschen für sauberen Zustand

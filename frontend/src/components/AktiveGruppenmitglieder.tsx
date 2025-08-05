@@ -157,9 +157,7 @@ export function AktiveGruppenmitglieder({
     setLoading(true);
     setError(null);
 
-    try {
-      console.log('👥 Lade Gruppenmitglieder...');
-      
+    try {      
       // 1. Gruppen-Administratoren laden (Kind 39001)
       if (showAdminBadges) {
         const adminsFilter: Filter = {
@@ -179,7 +177,6 @@ export function AktiveGruppenmitglieder({
             }));
           
           setGroupAdmins(adminPubkeys);
-          console.log(`👑 ${adminPubkeys.length} Administratoren gefunden`);
         }
       }
 
@@ -191,7 +188,6 @@ export function AktiveGruppenmitglieder({
       };
       
       const groupEvents = await pool.querySync(relaysToUse, groupMessagesFilter);
-      console.log(`💬 ${groupEvents.length} Nachrichten analysiert`);
 
       if (isCancelled) return;
 
@@ -212,7 +208,6 @@ export function AktiveGruppenmitglieder({
       const allUsers = Array.from(new Set([...messageUsers, ...adminUsers]));
       
       setUniquePubkeys(allUsers);
-      console.log(`👥 ${allUsers.length} einzigartige Mitglieder gefunden`);
 
       // 4. Profile laden
       if (allUsers.length > 0) {

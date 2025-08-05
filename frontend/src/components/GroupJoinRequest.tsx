@@ -21,7 +21,6 @@ export function GroupJoinRequest({ privkey, groupId, groupRelay, onJoinSuccess }
     setSuccess(null);
 
     try {
-      console.log('Sende NIP-29 Beitrittsanfrage...');
 
       const privkeyBytes = hexToBytes(privkey);
       const pubkeyHex = getPublicKey(privkeyBytes);
@@ -37,10 +36,8 @@ export function GroupJoinRequest({ privkey, groupId, groupRelay, onJoinSuccess }
         content: 'Bitte um Gruppenbeitritt', // Optionale Nachricht
       };
 
-      console.log('Beitrittsanfrage Event:', joinEvent);
 
       const signedEvent = finalizeEvent(joinEvent, privkeyBytes);
-      console.log('Signierte Beitrittsanfrage:', signedEvent);
 
       // An Gruppen-Relay senden
       const result = await sendJoinRequest(groupRelay, signedEvent);
@@ -53,7 +50,6 @@ export function GroupJoinRequest({ privkey, groupId, groupRelay, onJoinSuccess }
       }
 
     } catch (e: any) {
-      console.error('Fehler bei Beitrittsanfrage:', e);
       setError(e.message || 'Fehler beim Senden der Beitrittsanfrage');
     } finally {
       setJoining(false);
@@ -74,14 +70,12 @@ export function GroupJoinRequest({ privkey, groupId, groupRelay, onJoinSuccess }
         }, 10000); // 10 Sekunden Timeout
 
         ws.onopen = () => {
-          console.log(`Verbunden mit ${relayUrl} für Beitrittsanfrage`);
           ws.send(JSON.stringify(['EVENT', signedEvent]));
         };
 
         ws.onmessage = (event) => {
           try {
             const message = JSON.parse(event.data);
-            console.log(`Antwort auf Beitrittsanfrage von ${relayUrl}:`, message);
             
             if (message[0] === 'OK' && message[1] === signedEvent.id) {
               responseReceived = true;

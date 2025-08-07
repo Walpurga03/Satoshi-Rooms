@@ -249,12 +249,11 @@
   transition: max-height 0.5s ease;
 
   &.expanded {
-    max-height: 300px; // Feste Höhe für den Scroll-Effekt
-    overflow-y: auto; // Scrollbar hinzufügen
-    scrollbar-width: thin; // Für Firefox
-    scrollbar-color: rgba(v.$primary, 0.5) rgba(v.$surface, 0.5); // Für Firefox
+    max-height: 800px; // Erhöht von 600px auf 800px
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(v.$primary, 0.5) rgba(v.$surface, 0.5);
 
-    // Webkit Scrollbar für Chrome, Safari etc.
     &::-webkit-scrollbar {
       width: 8px;
     }
@@ -276,12 +275,9 @@
 }
 
 .infoGrid {
-  padding: 1.5rem 2rem;
-  padding-right: 1rem; // Platz für die Scrollbar
-  display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
-  // Höhe nicht begrenzen - Container übernimmt das
+  padding: 2rem 2.5rem 3rem 2.5rem; // Erhöht von 1.5rem 2rem
+  display: grid;
+  gap: 1rem; // Erhöht von 0.8rem
 }
 
 .infoRow {
@@ -477,7 +473,7 @@
 }
 
 // =========================
-// Admin Card Komponenten
+// Admin Card Komponenten - KOMPAKTER
 // =========================
 
 .adminsCard {
@@ -489,7 +485,7 @@
 }
 
 .adminsHeader {
-  padding: 1.5rem 2rem;
+  padding: 1rem 1.5rem; // Reduziert von 1.5rem 2rem
   background: linear-gradient(90deg, 
     rgba(v.$primary, 0.08) 0%, 
     rgba(v.$accent, 0.05) 100%
@@ -498,7 +494,7 @@
 
   h3 {
     margin: 0;
-    font-size: 1.2em;
+    font-size: 1.1em; // Reduziert von 1.2em
     font-weight: 600;
     color: v.$text;
     display: flex;
@@ -508,26 +504,32 @@
 }
 
 .adminsList {
-  padding: 1.5rem 2rem;
+  padding: 1rem 1.5rem; // Reduziert von 1.5rem 2rem
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.8rem; // Reduziert von 1rem
 }
 
 .adminCard {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem 1.5rem;
+  gap: 0.8rem; // Reduziert von 1rem
+  padding: 0.8rem 1rem; // Reduziert von 1rem 1.5rem
   background: rgba(v.$surface, 0.5);
-  border-radius: 8px;
+  border-radius: 6px; // Reduziert von 8px
   border-left: 3px solid rgba(v.$primary, 0.3);
   transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(v.$primary, 0.05);
+    border-left-color: rgba(v.$primary, 0.6);
+    transform: translateX(1px); // Reduziert von 2px
+  }
 }
 
 .adminAvatar {
-  width: 48px;
-  height: 48px;
+  width: 36px; // Reduziert von 48px
+  height: 36px; // Reduziert von 48px
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid rgba(v.$primary, 0.3);
@@ -535,15 +537,15 @@
 }
 
 .adminAvatarPlaceholder {
-  width: 48px;
-  height: 48px;
+  width: 36px; // Reduziert von 48px
+  height: 36px; // Reduziert von 48px
   border-radius: 50%;
   background: linear-gradient(135deg, #f39c12, #e74c3c);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 1.5em;
+  font-size: 1.2em; // Reduziert von 1.5em
   font-weight: bold;
   border: 2px solid rgba(v.$primary, 0.3);
   flex-shrink: 0;
@@ -554,37 +556,37 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.15rem; // Reduziert von 0.2rem
 }
 
 .adminName {
   font-weight: 600;
   color: v.$text;
-  font-size: 1.1em;
+  font-size: 1em; // Reduziert von 1.1em
 }
 
 .adminVerified {
-  font-size: 0.8em;
+  font-size: 0.75em; // Reduziert von 0.8em
   color: v.$accent;
   font-weight: 500;
 }
 
 .adminPubkey {
-  font-size: 0.75em;
+  font-size: 0.7em; // Reduziert von 0.75em
   color: v.$text-muted;
   font-family: 'Fira Code', 'Courier New', monospace;
   background: rgba(v.$surface, 0.8);
-  padding: 0.2em 0.4em;
-  border-radius: 4px;
+  padding: 0.15em 0.3em; // Reduziert von 0.2em 0.4em
+  border-radius: 3px; // Reduziert von 4px
   display: inline-block;
   max-width: fit-content;
 }
 
 .adminAbout {
-  font-size: 0.8em;
+  font-size: 0.75em; // Reduziert von 0.8em
   color: #666;
-  margin-top: 0.3rem;
-  max-width: 300px;
+  margin-top: 0.2rem; // Reduziert von 0.3rem
+  max-width: 250px; // Reduziert von 300px
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -599,202 +601,474 @@
 }
 
 .adminBadgeIcon {
-  font-size: 2em;
+  font-size: 1.5em; // Reduziert von 2em
 }
 
 .adminBadgeLabel {
-  font-size: 0.7em;
+  font-size: 0.65em; // Reduziert von 0.7em
   text-align: center;
-  margin-top: 0.2rem;
+  margin-top: 0.1rem; // Reduziert von 0.2rem
   color: #f39c12;
   font-weight: bold;
 }
 
 // =========================
-// Header Erweiterungen
+// Erweitere Details-Sektion für mehr Platz
 // =========================
 
-.headerLeft {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  flex: 1;
+.detailsContent {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease;
+
+  &.expanded {
+    max-height: 800px; // Erhöht von 600px auf 800px
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(v.$primary, 0.5) rgba(v.$surface, 0.5);
+
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: rgba(v.$surface, 0.5);
+      border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(v.$primary, 0.5);
+      border-radius: 4px;
+      
+      &:hover {
+        background: rgba(v.$primary, 0.7);
+      }
+    }
+  }
 }
 
-.groupImagePlaceholder {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, rgba(v.$primary, 0.2), rgba(v.$accent, 0.2));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2.5em;
-  color: v.$primary;
-  border: 3px solid rgba(v.$primary, 0.3);
-  flex-shrink: 0;
+// Mehr Padding für Details-Inhalt
+.infoGrid {
+  padding: 2rem 2.5rem 3rem 2.5rem; // Erhöht von 1.5rem 2rem
+  display: grid;
+  gap: 1rem; // Erhöht von 0.8rem
 }
 
-.headerText {
-  flex: 1;
-  min-width: 0;
+.infoSection {
+  margin-bottom: 2.5rem; // Erhöht von 2rem
+  
+  &:last-child {
+    margin-bottom: 1rem; // Zusätzlicher Platz am Ende
+  }
 }
 
-.groupDescription {
-  font-size: 0.95em;
-  color: v.$text-muted;
-  margin: 0.5rem 0;
-  line-height: 1.4;
-  max-width: 500px;
-}
-
-.groupId {
-  font-size: 0.8em;
-  color: v.$text-muted;
-  font-family: 'Fira Code', 'Courier New', monospace;
-  background: rgba(v.$surface, 0.8);
-  padding: 0.3em 0.6em;
-  border-radius: 6px;
-  display: inline-block;
-  margin-top: 0.5rem;
-}
-
-// =========================
-// Profile Status Komponenten
-// =========================
-
-.profileStatus {
+.infoSectionTitle {
+  font-size: 1.1em; // Leicht erhöht von 1em
+  font-weight: 600;
+  color: v.$text;
+  margin: 0 0 1.2rem 0; // Erhöht von 1rem
+  padding: 0.6rem 0; // Erhöht von 0.5rem
+  border-bottom: 2px solid rgba(v.$primary, 0.2);
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.profileStatusText {
-  font-size: 1em;
-}
-
-.profileStatusSuccess {
-  color: #27ae60;
-  font-size: 0.8em;
-}
-
-.profileStatusWarning {
-  color: #f39c12;
-  font-size: 0.8em;
-}
-
-.profileStatusError {
-  color: #e74c3c;
-  font-size: 0.8em;
-}
-
 // =========================
-// Button Erweiterungen
-// =========================
-
-.profileRefreshButton {
-  background: linear-gradient(135deg, v.$accent, v.$primary);
-  color: white;
-  border: none;
-  padding: 0.8em;
-  border-radius: 50%;
-  font-size: 1.2em;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(v.$accent, 0.3);
-  margin-left: 0.5rem;
-
-  &:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(v.$accent, 0.4);
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-  }
-}
-
-// =========================
-// Responsive Updates für Admin-Card
+// Responsive Updates - Admin kompakter
 // =========================
 
 @media (max-width: 768px) {
-  .headerLeft {
-    flex-direction: column;
-    text-align: center;
-    gap: 1rem;
-  }
-
-  .groupImagePlaceholder {
-    width: 60px;
-    height: 60px;
-    font-size: 2em;
-  }
-
-  .adminCard {
-    padding: 0.8rem 1rem;
-    gap: 0.8rem;
-  }
-
-  .adminAvatar, .adminAvatarPlaceholder {
-    width: 40px;
-    height: 40px;
-    font-size: 1.2em;
+  .adminsHeader {
+    padding: 0.8rem 1rem; // Noch kompakter für Mobile
   }
 
   .adminsList {
-    padding: 1rem;
-    gap: 0.8rem;
+    padding: 0.8rem 1rem; // Noch kompakter für Mobile
+    gap: 0.6rem;
   }
 
-  .headerActions {
-    flex-direction: row;
-    align-items: center;
-    gap: 0.5rem;
+  .adminCard {
+    padding: 0.6rem 0.8rem; // Noch kompakter für Mobile
+    gap: 0.6rem;
   }
 
-  .profileRefreshButton {
-    margin-left: 0;
+  .adminAvatar, .adminAvatarPlaceholder {
+    width: 32px; // Noch kleiner für Mobile
+    height: 32px;
+    font-size: 1em;
+  }
+
+  .adminBadgeIcon {
+    font-size: 1.2em; // Kleiner für Mobile
+  }
+
+  // Details bekommen mehr Platz auf Mobile
+  .detailsContent {
+    &.expanded {
+      max-height: 70vh; // 70% der Viewport-Höhe
+    }
+  }
+
+  .infoGrid {
+    padding: 1.5rem 1.2rem 2rem 1.2rem;
+  }
+
+  .infoSection {
+    margin-bottom: 2rem;
   }
 }
 
 @media (max-width: 480px) {
-  .headerLeft {
-    gap: 0.8rem;
+  .adminsHeader {
+    padding: 0.7rem 0.8rem; // Minimal für sehr kleine Screens
   }
 
-  .groupImagePlaceholder {
-    width: 50px;
-    height: 50px;
-    font-size: 1.5em;
+  .adminsList {
+    padding: 0.7rem 0.8rem;
+    gap: 0.5rem;
   }
 
   .adminCard {
-    flex-direction: column;
-    align-items: center;
+    padding: 0.5rem 0.6rem;
     gap: 0.5rem;
-    text-align: center;
   }
 
-  .adminInfo {
-    align-items: center;
+  .adminAvatar, .adminAvatarPlaceholder {
+    width: 28px; // Sehr klein für sehr kleine Screens
+    height: 28px;
+    font-size: 0.9em;
+  }
+
+  .adminName {
+    font-size: 0.9em;
+  }
+
+  .adminVerified {
+    font-size: 0.7em;
+  }
+
+  .adminPubkey {
+    font-size: 0.65em;
   }
 
   .adminAbout {
-    max-width: 250px;
-    text-align: center;
+    font-size: 0.7em;
+    max-width: 200px;
   }
 
-  .headerContent {
+  .adminBadgeIcon {
+    font-size: 1em;
+  }
+
+  .adminBadgeLabel {
+    font-size: 0.6em;
+  }
+
+  // Details bekommen maximalen Platz
+  .detailsContent {
+    &.expanded {
+      max-height: 60vh;
+    }
+  }
+
+  .infoGrid {
+    padding: 1rem 0.8rem 1.5rem 0.8rem;
+  }
+
+  .infoSection {
+    margin-bottom: 1.5rem;
+    
+    &:last-child {
+      margin-bottom: 0.5rem;
+    }
+  }
+}
+
+// =========================
+// Status Anzeigen
+// =========================
+
+.statusManaged {
+  color: #27ae60;
+  font-weight: 600;
+  font-size: 0.9em;
+}
+
+.statusUnmanaged {
+  color: #f39c12;
+  font-weight: 600;
+  font-size: 0.9em;
+}
+
+.statusSuccess {
+  color: #27ae60;
+  font-weight: 500;
+}
+
+.statusError {
+  color: #e74c3c;
+  font-weight: 500;
+}
+
+.statusNeutral {
+  color: v.$text-muted;
+  font-weight: 500;
+}
+
+// =========================
+// Erweiterte Details-Sektion
+// =========================
+
+.infoSection {
+  margin-bottom: 2rem;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.infoSectionTitle {
+  font-size: 1em;
+  font-weight: 600;
+  color: v.$text;
+  margin: 0 0 1rem 0;
+  padding: 0.5rem 0;
+  border-bottom: 2px solid rgba(v.$primary, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.infoGrid {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.infoRow {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(v.$border, 0.1);
+  
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.infoIcon {
+  font-size: 1.1em;
+  width: 24px;
+  text-align: center;
+}
+
+.infoLabel {
+  font-weight: 500;
+  color: v.$text-muted;
+  font-size: 0.9em;
+}
+
+.infoValue {
+  font-weight: 600;
+  color: v.$text;
+  text-align: right;
+  min-width: 0;
+}
+
+// =========================
+// Spezielle Value-Styles
+// =========================
+
+.monospace {
+  font-family: 'Fira Code', 'Courier New', monospace;
+  background: rgba(v.$surface, 0.8);
+  padding: 0.3em 0.6em;
+  border-radius: 4px;
+  font-size: 0.85em;
+  color: v.$accent;
+  border: 1px solid rgba(v.$border, 0.2);
+}
+
+.relayUrl {
+  font-family: 'Fira Code', 'Courier New', monospace;
+  color: v.$primary;
+  font-size: 0.85em;
+  text-decoration: underline;
+  text-decoration-color: rgba(v.$primary, 0.3);
+  
+  &:hover {
+    text-decoration-color: v.$primary;
+  }
+}
+
+.relayCount {
+  background: linear-gradient(90deg, rgba(v.$accent, 0.1), rgba(v.$primary, 0.1));
+  padding: 0.3em 0.8em;
+  border-radius: 12px;
+  font-weight: 600;
+  color: v.$accent;
+  font-size: 0.85em;
+}
+
+.relayType {
+  background: rgba(v.$success, 0.1);
+  color: v.$success;
+  padding: 0.3em 0.8em;
+  border-radius: 12px;
+  font-size: 0.8em;
+  font-weight: 600;
+}
+
+.numberHighlight {
+  font-size: 1.1em;
+  font-weight: 700;
+  color: v.$primary;
+}
+
+// =========================
+// Status-Badges
+// =========================
+
+.statusBadge {
+  padding: 0.4em 1em;
+  border-radius: 20px;
+  font-size: 0.8em;
+  font-weight: 600;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.badgePublic {
+  background: linear-gradient(90deg, rgba(#27ae60, 0.15), rgba(#2ecc71, 0.1));
+  color: #27ae60;
+  border-color: rgba(#27ae60, 0.3);
+}
+
+.badgePrivate {
+  background: linear-gradient(90deg, rgba(#e67e22, 0.15), rgba(#f39c12, 0.1));
+  color: #e67e22;
+  border-color: rgba(#e67e22, 0.3);
+}
+
+.badgeOpen {
+  background: linear-gradient(90deg, rgba(#3498db, 0.15), rgba(#2980b9, 0.1));
+  color: #2980b9;
+  border-color: rgba(#2980b9, 0.3);
+}
+
+.badgeClosed {
+  background: linear-gradient(90deg, rgba(#e74c3c, 0.15), rgba(#c0392b, 0.1));
+  color: #c0392b;
+  border-color: rgba(#c0392b, 0.3);
+}
+
+// =========================
+// Profil-Progress
+// =========================
+
+.profileProgress {
+  padding: 0.3em 0.8em;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: 600;
+}
+
+.profileComplete {
+  background: rgba(#27ae60, 0.15);
+  color: #27ae60;
+}
+
+.profileGood {
+  background: rgba(#f39c12, 0.15);
+  color: #e67e22;
+}
+
+.profilePoor {
+  background: rgba(#e74c3c, 0.15);
+  color: #c0392b;
+}
+
+// =========================
+// Event-Types Display
+// =========================
+
+.eventTypes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.eventType {
+  background: rgba(v.$success, 0.1);
+  color: v.$success;
+  padding: 0.4em 0.8em;
+  border-radius: 16px;
+  font-size: 0.75em;
+  font-weight: 600;
+  border: 1px solid rgba(v.$success, 0.2);
+}
+
+.eventTypeNote {
+  background: rgba(v.$primary, 0.1);
+  color: v.$primary;
+  padding: 0.4em 0.8em;
+  border-radius: 16px;
+  font-size: 0.75em;
+  font-weight: 600;
+  border: 1px solid rgba(v.$primary, 0.2);
+  font-style: italic;
+}
+
+// =========================
+// Responsive Updates
+// =========================
+
+@media (max-width: 768px) {
+  .infoRow {
+    grid-template-columns: auto 1fr;
+    gap: 0.8rem;
+  }
+  
+  .infoValue {
+    text-align: left;
+    grid-column: 2;
+  }
+  
+  .infoSectionTitle {
+    font-size: 0.95em;
+  }
+  
+  .eventTypes {
     flex-direction: column;
-    text-align: center;
-    gap: 1.5rem;
+    gap: 0.3rem;
   }
+  
+  .statusBadge {
+    font-size: 0.75em;
+    padding: 0.3em 0.8em;
+  }
+}
 
-  .headerActions {
-    flex-direction: row;
-    justify-content: center;
+@media (max-width: 480px) {
+  .infoSection {
+    margin-bottom: 1.5rem;
+  }
+  
+  .infoSectionTitle {
+    font-size: 0.9em;
+    padding: 0.4rem 0;
+  }
+  
+  .monospace {
+    font-size: 0.75em;
+    word-break: break-all;
+  }
+  
+  .relayUrl {
+    font-size: 0.75em;
+    word-break: break-all;
   }
 }

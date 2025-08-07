@@ -475,3 +475,326 @@
     padding: 1rem 1.2rem;
   }
 }
+
+// =========================
+// Admin Card Komponenten
+// =========================
+
+.adminsCard {
+  @include m.card;
+  width: min(95%, v.$card-width);
+  background: rgba(v.$surface, 0.98);
+  border: 1px solid rgba(v.$border, 0.2);
+  overflow: hidden;
+}
+
+.adminsHeader {
+  padding: 1.5rem 2rem;
+  background: linear-gradient(90deg, 
+    rgba(v.$primary, 0.08) 0%, 
+    rgba(v.$accent, 0.05) 100%
+  );
+  border-bottom: 1px solid rgba(v.$border, 0.1);
+
+  h3 {
+    margin: 0;
+    font-size: 1.2em;
+    font-weight: 600;
+    color: v.$text;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+
+.adminsList {
+  padding: 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.adminCard {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: rgba(v.$surface, 0.5);
+  border-radius: 8px;
+  border-left: 3px solid rgba(v.$primary, 0.3);
+  transition: all 0.2s ease;
+}
+
+.adminAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(v.$primary, 0.3);
+  flex-shrink: 0;
+}
+
+.adminAvatarPlaceholder {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f39c12, #e74c3c);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5em;
+  font-weight: bold;
+  border: 2px solid rgba(v.$primary, 0.3);
+  flex-shrink: 0;
+}
+
+.adminInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.adminName {
+  font-weight: 600;
+  color: v.$text;
+  font-size: 1.1em;
+}
+
+.adminVerified {
+  font-size: 0.8em;
+  color: v.$accent;
+  font-weight: 500;
+}
+
+.adminPubkey {
+  font-size: 0.75em;
+  color: v.$text-muted;
+  font-family: 'Fira Code', 'Courier New', monospace;
+  background: rgba(v.$surface, 0.8);
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  display: inline-block;
+  max-width: fit-content;
+}
+
+.adminAbout {
+  font-size: 0.8em;
+  color: #666;
+  margin-top: 0.3rem;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.adminBadge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.adminBadgeIcon {
+  font-size: 2em;
+}
+
+.adminBadgeLabel {
+  font-size: 0.7em;
+  text-align: center;
+  margin-top: 0.2rem;
+  color: #f39c12;
+  font-weight: bold;
+}
+
+// =========================
+// Header Erweiterungen
+// =========================
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex: 1;
+}
+
+.groupImagePlaceholder {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(v.$primary, 0.2), rgba(v.$accent, 0.2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5em;
+  color: v.$primary;
+  border: 3px solid rgba(v.$primary, 0.3);
+  flex-shrink: 0;
+}
+
+.headerText {
+  flex: 1;
+  min-width: 0;
+}
+
+.groupDescription {
+  font-size: 0.95em;
+  color: v.$text-muted;
+  margin: 0.5rem 0;
+  line-height: 1.4;
+  max-width: 500px;
+}
+
+.groupId {
+  font-size: 0.8em;
+  color: v.$text-muted;
+  font-family: 'Fira Code', 'Courier New', monospace;
+  background: rgba(v.$surface, 0.8);
+  padding: 0.3em 0.6em;
+  border-radius: 6px;
+  display: inline-block;
+  margin-top: 0.5rem;
+}
+
+// =========================
+// Profile Status Komponenten
+// =========================
+
+.profileStatus {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.profileStatusText {
+  font-size: 1em;
+}
+
+.profileStatusSuccess {
+  color: #27ae60;
+  font-size: 0.8em;
+}
+
+.profileStatusWarning {
+  color: #f39c12;
+  font-size: 0.8em;
+}
+
+.profileStatusError {
+  color: #e74c3c;
+  font-size: 0.8em;
+}
+
+// =========================
+// Button Erweiterungen
+// =========================
+
+.profileRefreshButton {
+  background: linear-gradient(135deg, v.$accent, v.$primary);
+  color: white;
+  border: none;
+  padding: 0.8em;
+  border-radius: 50%;
+  font-size: 1.2em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(v.$accent, 0.3);
+  margin-left: 0.5rem;
+
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(v.$accent, 0.4);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+// =========================
+// Responsive Updates für Admin-Card
+// =========================
+
+@media (max-width: 768px) {
+  .headerLeft {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .groupImagePlaceholder {
+    width: 60px;
+    height: 60px;
+    font-size: 2em;
+  }
+
+  .adminCard {
+    padding: 0.8rem 1rem;
+    gap: 0.8rem;
+  }
+
+  .adminAvatar, .adminAvatarPlaceholder {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2em;
+  }
+
+  .adminsList {
+    padding: 1rem;
+    gap: 0.8rem;
+  }
+
+  .headerActions {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .profileRefreshButton {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .headerLeft {
+    gap: 0.8rem;
+  }
+
+  .groupImagePlaceholder {
+    width: 50px;
+    height: 50px;
+    font-size: 1.5em;
+  }
+
+  .adminCard {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: center;
+  }
+
+  .adminInfo {
+    align-items: center;
+  }
+
+  .adminAbout {
+    max-width: 250px;
+    text-align: center;
+  }
+
+  .headerContent {
+    flex-direction: column;
+    text-align: center;
+    gap: 1.5rem;
+  }
+
+  .headerActions {
+    flex-direction: row;
+    justify-content: center;
+  }
+}

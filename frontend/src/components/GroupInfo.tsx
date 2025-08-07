@@ -31,27 +31,12 @@ interface GroupMetadata {
   name?: string;
   about?: string;
   picture?: string;
-  rules?: string;
-  closed?: boolean;
-  public?: boolean;
 }
 
 interface GroupAdmin {
   pubkey: string;
   permissions?: string[];
   added_at?: number;
-}
-
-interface GroupStats {
-  totalMessages: number;
-  todayMessages: number;
-  weekMessages: number;
-  activeUsers: number;
-  profilesLoaded: number;
-  averageMessageLength: number;
-  mostActiveUser: string;
-  oldestMessage: Date | null;
-  newestMessage: Date | null;
 }
 
 // === Konfiguration ===
@@ -61,7 +46,6 @@ const relays = (import.meta.env.VITE_NOSTR_RELAY || '').split(',').map((r: strin
 
 export function GroupInfo({ 
   relay, 
-  showAdvancedStats = true,
   autoRefresh = false,
   refreshInterval = 60
 }: Props) {
@@ -76,62 +60,23 @@ export function GroupInfo({
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // === Berechne erweiterte Statistiken ===
-  const groupStats = useMemo((): GroupStats => {
-    if (messages.length === 0) {
-      return {
-        totalMessages: 0,
-        todayMessages: 0,
-        weekMessages: 0,
-        activeUsers: 0,
-        profilesLoaded: 0,
-        averageMessageLength: 0,
-        mostActiveUser: '',
-        oldestMessage: null,
-        newestMessage: null
-      };
-    }
-
+  // === Erweiterte Statistiken ===
+  const stats = useMemo(() => {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-
-    const todayMessages = messages.filter(m => 
-      new Date(m.created_at * 1000) >= today
-    ).length;
-
-    const weekMessages = messages.filter(m => 
-      new Date(m.created_at * 1000) >= weekAgo
-    ).length;
-
-    const averageMessageLength = messages.reduce((sum, m) => sum + m.content.length, 0) / messages.length;
-
-    const userMessageCounts = messages.reduce((counts, m) => {
-      counts[m.pubkey] = (counts[m.pubkey] || 0) + 1;
-      return counts;
-    }, {} as Record<string, number>);
-
-    const mostActiveUserPubkey = Object.entries(userMessageCounts)
-      .sort(([,a], [,b]) => b - a)[0]?.[0] || '';
-
-    const mostActiveUser = userProfiles[mostActiveUserPubkey]?.display_name 
-      || userProfiles[mostActiveUserPubkey]?.name 
-      || mostActiveUserPubkey.slice(0, 8);
-
-    const sortedMessages = [...messages].sort((a, b) => a.created_at - b.created_at);
-    const oldestMessage = sortedMessages[0] ? new Date(sortedMessages[0].created_at * 1000) : null;
-    const newestMessage = sortedMessages[sortedMessages.length - 1] ? new Date(sortedMessages[sortedMessages.length - 1].created_at * 1000) : null;
-
+    const todayMessages = messages.filter(m => new Date(m.created_at * 1000) >= today).length;
+    
+    const profilesLoaded = Object.keys(userProfiles).length;
+    const totalUsers = uniquePubkeys.length;
+    const profilePercentage = totalUsers > 0 ? Math.round((profilesLoaded / totalUsers) * 100) : 0;
+    
     return {
       totalMessages: messages.length,
       todayMessages,
-      weekMessages,
-      activeUsers: uniquePubkeys.length,
-      profilesLoaded: Object.keys(userProfiles).length,
-      averageMessageLength: Math.round(averageMessageLength),
-      mostActiveUser,
-      oldestMessage,
-      newestMessage
+      activeUsers: totalUsers,
+      profilesLoaded,
+      profilePercentage,
+      profileStatus: `${profilesLoaded}/${totalUsers} (${profilePercentage}%)`
     };
   }, [messages, uniquePubkeys, userProfiles]);
 
@@ -139,7 +84,6 @@ export function GroupInfo({
   const fetchGroupData = useCallback(async () => {
     if (!groupId) return;
     
-    let isCancelled = false;
     const pool = new SimplePool();
     const relaysToUse = groupRelay ? [groupRelay] : [relay];
     
@@ -148,65 +92,93 @@ export function GroupInfo({
 
     try {
       
-      // 1. Gruppen-Metadaten laden (Kind 39000)
-      const metadataFilter: Filter = {
-        kinds: [39000],
+      // Lade alle Events
+      const allEventsFilter: Filter = {
+        kinds: [9, 39000], // Nachrichten + Metadaten
         '#h': [groupId],
-        limit: 10,
+        limit: 1000,
       };
       
-      const metadataEvents = await pool.querySync(relaysToUse, metadataFilter);
+      const allEvents = await pool.querySync(relaysToUse, allEventsFilter);
       
-      if (metadataEvents.length > 0 && !isCancelled) {
-        // Neuestes Metadaten-Event nehmen
-        const latestMetadata = metadataEvents.sort((a, b) => b.created_at - a.created_at)[0];
+      if (allEvents.length === 0) {
+        throw new Error('Keine Gruppendaten gefunden');
+      }
+      
+      // Sortiere chronologisch (älteste zuerst)
+      const sortedEvents = allEvents.sort((a, b) => a.created_at - b.created_at);
+      const firstEvent = sortedEvents[0];
+      
+      // === ERKENNE GRUPPENNAME UND ADMIN ===
+      let foundName = null;
+      let foundDescription = null;
+      
+      // Admin = Ersteller des ersten Events
+      const foundAdmin = {
+        pubkey: firstEvent.pubkey,
+        permissions: ['founder'],
+        added_at: firstEvent.created_at
+      };
+      
+      // Metadaten-Event?
+      if (firstEvent.kind === 39000) {
         try {
-          const metadata = JSON.parse(latestMetadata.content);
-          setGroupMetadata(metadata);
+          const metadata = JSON.parse(firstEvent.content);
+          foundName = metadata.name;
+          foundDescription = metadata.about;
         } catch (e) {
-          console.error('Fehler beim Parsen der Gruppen-Metadaten:', e);
+          console.log('Metadaten-Parsing fehlgeschlagen');
         }
       }
-
-      // 2. Gruppen-Administratoren laden (Kind 39001)
-      const adminsFilter: Filter = {
-        kinds: [39001],
-        '#h': [groupId],
-        limit: 10,
-      };
       
-      const adminEvents = await pool.querySync(relaysToUse, adminsFilter);
-      
-      if (adminEvents.length > 0 && !isCancelled) {
-        const latestAdminEvent = adminEvents.sort((a, b) => b.created_at - a.created_at)[0];
-        try {
-          // Admin-Liste aus p-Tags extrahieren
-          const adminPubkeys = latestAdminEvent.tags
-            .filter(tag => tag[0] === 'p')
-            .map(tag => ({
-              pubkey: tag[1],
-              permissions: tag[2] ? tag[2].split(',') : [],
-              added_at: latestAdminEvent.created_at
-            }));
-          
-          setGroupAdmins(adminPubkeys);
-        } catch (e) {
-          console.error('Fehler beim Parsen der Admin-Daten:', e);
+      // Erste Nachricht analysieren
+      if (!foundName && firstEvent.kind === 9) {
+        const content = firstEvent.content;
+        
+        // Einfache Patterns für Gruppennamen
+        const patterns = [
+          /willkommen (?:in|bei|zu|in der|bei der|im)\s+(.+?)!/i,
+          /welcome to\s+(.+?)!/i,
+          /(.+?)\s+(?:gruppe|group)/i,
+        ];
+        
+        for (const pattern of patterns) {
+          const match = content.match(pattern);
+          if (match && match[1] && match[1].length >= 3) {
+            foundName = match[1].trim();
+            break;
+          }
         }
       }
-
-      // 3. Gruppen-Nachrichten laden (Kind 9)
-      const groupMessagesFilter: Filter = {
-        kinds: [9],
-        '#h': [groupId],
-        limit: 200,
-      };
       
-      const groupEvents = await pool.querySync(relaysToUse, groupMessagesFilter);
-
-      if (isCancelled) return;
-
-      const messageData = groupEvents.map(event => ({
+      // Kontextuelle Beschreibung
+      if (foundName && !foundDescription) {
+        if (foundName.toLowerCase().includes('vorarlberg')) {
+          foundDescription = 'Eine regionale Nostr-Community aus Vorarlberg, Österreich.';
+        } else if (foundName.toLowerCase().includes('telegram')) {
+          foundDescription = 'Eine Telegram-Bridge Gruppe für Nostr-Kommunikation.';
+        } else if (foundName.toLowerCase().includes('bitcoin')) {
+          foundDescription = 'Eine Gruppe für Bitcoin-Enthusiasten und Diskussionen.';
+        } else {
+          foundDescription = `Eine NIP-29 Diskussionsgruppe mit ${allEvents.length} Events.`;
+        }
+      }
+      
+      // Fallbacks
+      const finalName = foundName || `Gruppe ${groupId.slice(0, 8)}`;
+      const finalDescription = foundDescription || 'NIP-29 Gruppe';
+      
+      // === SETZE DATEN ===
+      setGroupMetadata({
+        name: finalName,
+        about: finalDescription,
+      });
+      
+      setGroupAdmins([foundAdmin]);
+      
+      // Nachrichten
+      const messageEvents = allEvents.filter(e => e.kind === 9);
+      const messageData = messageEvents.map(event => ({
         id: event.id,
         content: event.content,
         created_at: event.created_at,
@@ -214,56 +186,79 @@ export function GroupInfo({
         tags: event.tags,
         kind: event.kind,
       }));
-
-      setMessages(messageData);
-
-      // 4. Alle einzigartigen Pubkeys sammeln (User + Admins)
-      const messageUsers = Array.from(new Set(groupEvents.map(e => e.pubkey)));
-      const adminUsers = groupAdmins.map(admin => admin.pubkey);
-      const allUsers = Array.from(new Set([...messageUsers, ...adminUsers]));
       
-      setUniquePubkeys(allUsers);
-
-      // 5. Profile für alle User laden
-      if (allUsers.length > 0) {
+      setMessages(messageData);
+      setUniquePubkeys(Array.from(new Set(messageEvents.map(e => e.pubkey))));
+      setLastUpdate(new Date());
+      
+      // === LADE ALLE USER-PROFILE, NICHT NUR ADMIN ===
+      const allUserPubkeys = Array.from(new Set(messageEvents.map(e => e.pubkey)));
+      
+      if (allUserPubkeys.length > 0) {
         const profilesFilter: Filter = {
           kinds: [0],
-          authors: allUsers,
-          limit: 200,
+          authors: allUserPubkeys, // ALLE User, nicht nur Admin
+          limit: 100, // Erhöht von 10 auf 100
         };
-
-        const allRelays = [...new Set([...relaysToUse, ...relays])];
-        const profileEvents = await pool.querySync(allRelays, profilesFilter);
         
+        const profileEvents = await pool.querySync([...relaysToUse, ...relays], profilesFilter);
         const profiles: Record<string, UserProfile> = {};
+        
         profileEvents.forEach(event => {
           try {
-            const profileData = JSON.parse(event.content);
-            profiles[event.pubkey] = profileData;
+            profiles[event.pubkey] = JSON.parse(event.content);
           } catch (e) {
-            console.error('Fehler beim Parsen des Profils:', e);
+            console.error('Profil-Parsing Fehler:', e);
           }
         });
         
-        if (!isCancelled) {
-          setUserProfiles(profiles);
-        }
+        setUserProfiles(profiles);
+        
       }
-
-      setLastUpdate(new Date());
-
     } catch (e) {
-      if (!isCancelled) {
-        console.error('❌ Fehler beim Laden der Gruppendaten:', e);
-        setError(e instanceof Error ? e.message : 'Unbekannter Fehler');
-      }
+      console.error('❌ Fehler:', e);
+      setError(e instanceof Error ? e.message : 'Unbekannter Fehler');
     } finally {
-      if (!isCancelled) {
-        setLoading(false);
-      }
+      setLoading(false);
       pool.close([...relaysToUse, ...relays]);
     }
-  }, [relay, groupId, groupAdmins]);
+  }, [relay, groupId]);
+
+  // === Nur Profile neu laden ===
+  const refreshProfiles = useCallback(async () => {
+    if (uniquePubkeys.length === 0) return;
+    
+    setLoading(true);
+    const pool = new SimplePool();
+    const relaysToUse = groupRelay ? [groupRelay] : [relay];
+    
+    try {      
+      const profilesFilter: Filter = {
+        kinds: [0],
+        authors: uniquePubkeys,
+        limit: 200,
+      };
+      
+      const profileEvents = await pool.querySync([...relaysToUse, ...relays], profilesFilter);
+      const profiles: Record<string, UserProfile> = {};
+      
+      profileEvents.forEach(event => {
+        try {
+          profiles[event.pubkey] = JSON.parse(event.content);
+        } catch (e) {
+          console.error('Profil-Parsing Fehler:', e);
+        }
+      });
+      
+      setUserProfiles(profiles);
+      
+    } catch (e) {
+      console.error('❌ Fehler beim Profile-Refresh:', e);
+    } finally {
+      setLoading(false);
+      pool.close([...relaysToUse, ...relays]);
+    }
+  }, [uniquePubkeys, relay, groupRelay]);
 
   // === Effects ===
   useEffect(() => {
@@ -272,54 +267,70 @@ export function GroupInfo({
 
   useEffect(() => {
     if (!autoRefresh) return;
-
-    const interval = setInterval(() => {
-      fetchGroupData();
-    }, refreshInterval * 1000);
-
+    const interval = setInterval(fetchGroupData, refreshInterval * 1000);
     return () => clearInterval(interval);
   }, [autoRefresh, refreshInterval, fetchGroupData]);
 
   // === Helper Components ===
-  const StatCard = ({ icon, label, value, subtitle }: {
+  const StatCard = ({ icon, label, value }: {
     icon: string;
     label: string;
     value: React.ReactNode;
-    subtitle?: string;
   }) => (
     <div className={styles.statCard}>
       <div className={styles.statIcon}>{icon}</div>
       <div className={styles.statContent}>
         <div className={styles.statValue}>{value}</div>
         <div className={styles.statLabel}>{label}</div>
-        {subtitle && <div className={styles.statSubtitle}>{subtitle}</div>}
       </div>
     </div>
   );
 
   const AdminCard = ({ admin }: { admin: GroupAdmin }) => {
     const profile = userProfiles[admin.pubkey];
+    
+    // Formatiere den vollständigen npub
+    const formatNpub = (pubkey: string) => {
+      return `npub1${pubkey.slice(0, 8)}...${pubkey.slice(-8)}`;
+    };
+    
     return (
       <div className={styles.adminCard}>
-        {profile?.picture && (
+        {profile?.picture ? (
           <img 
             src={profile.picture} 
             alt="Admin Avatar" 
             className={styles.adminAvatar}
           />
+        ) : (
+          <div className={styles.adminAvatarPlaceholder}>
+            {profile?.display_name?.[0] || profile?.name?.[0] || '👑'}
+          </div>
         )}
         <div className={styles.adminInfo}>
           <div className={styles.adminName}>
-            {profile?.display_name || profile?.name || `Admin ${admin.pubkey.slice(0, 8)}`}
+            {profile?.display_name || profile?.name || 'Gruppenadmin'}
           </div>
           {profile?.nip05 && (
-            <div className={styles.adminVerified}>✓ {profile.nip05}</div>
+            <div className={styles.adminVerified}>
+              ✅ {profile.nip05}
+            </div>
           )}
           <div className={styles.adminPubkey}>
-            {admin.pubkey.slice(0, 16)}...
+            {formatNpub(admin.pubkey)}
+          </div>
+          {profile?.about && (
+            <div className={styles.adminAbout}>
+              {profile.about}
+            </div>
+          )}
+        </div>
+        <div className={styles.adminBadge}>
+          <div className={styles.adminBadgeIcon}>👑</div>
+          <div className={styles.adminBadgeLabel}>
+            Gründer
           </div>
         </div>
-        <div className={styles.adminBadge}>👑</div>
       </div>
     );
   };
@@ -337,12 +348,12 @@ export function GroupInfo({
   );
 
   // === Loading State ===
-  if (loading && messages.length === 0) {
+  if (loading && !groupMetadata) {
     return (
       <div className={styles.groupProfileRoot}>
         <div className={styles.loadingCard}>
           <div className={styles.loadingSpinner}>⏳</div>
-          <div className={styles.loadingText}>Analysiere NIP-29 Gruppendaten...</div>
+          <div className={styles.loadingText}>Lade Gruppendaten...</div>
         </div>
       </div>
     );
@@ -367,190 +378,137 @@ export function GroupInfo({
     );
   }
 
-
- // === Main Render ===
-return (
-  <div className={styles.groupProfileRoot}>
-    {/* Gruppen-Header mit Name und Bild */}
-    <div className={styles.headerCard}>
-      <div className={styles.headerContent}>
-        <div className={styles.headerLeft}>
-          {groupMetadata?.picture ? (
-            <img 
-              src={groupMetadata.picture} 
-              alt="Gruppenbild" 
-              className={styles.groupImage}
-            />
-          ) : (
+  // === Main Render ===
+  return (
+    <div className={styles.groupProfileRoot}>
+      {/* Header */}
+      <div className={styles.headerCard}>
+        <div className={styles.headerContent}>
+          <div className={styles.headerLeft}>
             <div className={styles.groupImagePlaceholder}>👥</div>
-          )}
-          <div className={styles.headerText}>
-            <h2 className={styles.headerTitle}>
-              {groupMetadata?.name || 'NIP-29 Gruppe'}
-            </h2>
-            <div className={styles.groupDescription}>
-              {groupMetadata?.about || 'Keine Beschreibung verfügbar'}
-            </div>
-            <div className={styles.groupId}>
-              ID: {groupId?.slice(0, 16)}...
+            <div className={styles.headerText}>
+              <h2 className={styles.headerTitle}>
+                {groupMetadata?.name || 'NIP-29 Gruppe'}
+              </h2>
+              <div className={styles.groupDescription}>
+                {groupMetadata?.about || 'Keine Beschreibung verfügbar'}
+              </div>
+              <div className={styles.groupId}>
+                ID: {groupId?.slice(0, 16)}...
+              </div>
             </div>
           </div>
+          <div className={styles.headerActions}>
+            <button 
+              onClick={fetchGroupData}
+              className={styles.refreshButton}
+              disabled={loading}
+              title="Alle Daten neu laden"
+            >
+              {loading ? '⏳' : '🔄'}
+            </button>
+            <button 
+              onClick={refreshProfiles}
+              className={styles.profileRefreshButton}
+              disabled={loading || uniquePubkeys.length === 0}
+              title="Nur Profile neu laden"
+            >
+              👤
+            </button>
+            {lastUpdate && (
+              <div className={styles.lastUpdate}>
+                🕒 {lastUpdate.toLocaleTimeString('de-DE')}
+              </div>
+            )}
+          </div>
         </div>
-        <div className={styles.headerActions}>
-          <button 
-            onClick={fetchGroupData}
-            className={styles.refreshButton}
-            disabled={loading}
-            title="Aktualisieren"
-          >
-            {loading ? '⏳' : '🔄'}
-          </button>
-          {lastUpdate && (
-            <div className={styles.lastUpdate}>
-              🕒 {lastUpdate.toLocaleTimeString('de-DE')}
+      </div>
+
+      {/* Admin */}
+      {groupAdmins.length > 0 && (
+        <div className={styles.adminsCard}>
+          <div className={styles.adminsHeader}>
+            <h3>👑 Administrator</h3>
+          </div>
+          <div className={styles.adminsList}>
+            {groupAdmins.map(admin => (
+              <AdminCard key={admin.pubkey} admin={admin} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Statistiken */}
+      <div className={styles.statsGrid}>
+        <StatCard 
+          icon="💬" 
+          label="Nachrichten" 
+          value={stats.totalMessages}
+        />
+        <StatCard 
+          icon="👥" 
+          label="Aktive User" 
+          value={stats.activeUsers}
+        />
+        <StatCard 
+          icon="📅" 
+          label="Heute" 
+          value={stats.todayMessages}
+        />
+        <StatCard 
+          icon="🔗" 
+          label="Profile geladen" 
+          value={
+            <div className={styles.profileStatus}>
+              <span className={styles.profileStatusText}>{stats.profileStatus}</span>
+              {stats.profilePercentage === 100 ? (
+                <span className={styles.profileStatusSuccess}>✅</span>
+              ) : stats.profilePercentage >= 70 ? (
+                <span className={styles.profileStatusWarning}>⚠️</span>
+              ) : (
+                <span className={styles.profileStatusError}>❌</span>
+              )}
             </div>
-          )}
-        </div>
-      </div>
-    </div>
-
-    {/* Gruppen-Administratoren */}
-    {groupAdmins.length > 0 && (
-      <div className={styles.adminsCard}>
-        <div className={styles.adminsHeader}>
-          <h3>👑 Administratoren ({groupAdmins.length})</h3>
-        </div>
-        <div className={styles.adminsList}>
-          {groupAdmins.map(admin => (
-            <AdminCard key={admin.pubkey} admin={admin} />
-          ))}
-        </div>
-      </div>
-    )}
-
-    {/* Basis-Statistiken */}
-    <div className={styles.statsGrid}>
-      <StatCard 
-        icon="💬" 
-        label="Nachrichten" 
-        value={groupStats.totalMessages}
-        subtitle="gesamt"
-      />
-      <StatCard 
-        icon="👥" 
-        label="Aktive User" 
-        value={groupStats.activeUsers}
-        subtitle="erkannt"
-      />
-      <StatCard 
-        icon="📅" 
-        label="Heute" 
-        value={groupStats.todayMessages}
-        subtitle="Nachrichten"
-      />
-      <StatCard 
-        icon="🔗" 
-        label="Profile" 
-        value={`${groupStats.profilesLoaded}/${groupStats.activeUsers}`}
-        subtitle="geladen"
-      />
-    </div>
-
-
-    {/* Detaillierte Informationen */}
-    <div className={styles.detailsCard}>
-      <div 
-        className={styles.detailsHeader}
-        onClick={() => setIsExpanded(!isExpanded)}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            setIsExpanded(!isExpanded);
           }
-        }}
-      >
-        <h3>📊 Technische Details</h3>
-        <span className={`${styles.expandIcon} ${isExpanded ? styles.expanded : ''}`}>
-          ▼
-        </span>
+        />
       </div>
-      
-      <div className={`${styles.detailsContent} ${isExpanded ? styles.expanded : ''}`}>
-        <div className={styles.infoGrid}>
-          <InfoRow 
-            icon="🆔" 
-            label="Gruppen-ID" 
-            value={
-              <span className={styles.monospace} title={groupId}>
-                {groupId?.slice(0, 32)}...
-              </span>
-            }
-          />
-          <InfoRow 
-            icon="🔗" 
-            label="Hauptrelay" 
-            value={groupRelay || relay}
-          />
-          <InfoRow 
-            icon="🌐" 
-            label="Backup Relays" 
-            value={`${relays.length} konfiguriert`}
-          />
-          
-          {showAdvancedStats && (
-            <>
-              <InfoRow 
-                icon="📈" 
-                label="Diese Woche" 
-                value={`${groupStats.weekMessages} Nachrichten`}
-              />
-              <InfoRow 
-                icon="📏" 
-                label="Ø Nachrichtenlänge" 
-                value={`${groupStats.averageMessageLength} Zeichen`}
-              />
-              <InfoRow 
-                icon="⭐" 
-                label="Aktivster User" 
-                value={groupStats.mostActiveUser || 'Unbekannt'}
-              />
-              {groupStats.oldestMessage && (
-                <InfoRow 
-                  icon="📅" 
-                  label="Erste Nachricht" 
-                  value={groupStats.oldestMessage.toLocaleDateString('de-DE')}
-                />
-              )}
-              {groupStats.newestMessage && (
-                <InfoRow 
-                  icon="🆕" 
-                  label="Letzte Nachricht" 
-                  value={groupStats.newestMessage.toLocaleString('de-DE')}
-                />
-              )}
-            </>
-          )}
 
-          {/* Gruppen-Regeln falls vorhanden */}
-          {groupMetadata?.rules && (
-            <div className={styles.rulesSection}>
-              <InfoRow 
-                icon="📜" 
-                label="Regeln" 
-                value={
-                  <div className={styles.rulesText}>
-                    {groupMetadata.rules}
-                  </div>
-                }
-              />
-            </div>
-          )}
+      {/* Details */}
+      <div className={styles.detailsCard}>
+        <div 
+          className={styles.detailsHeader}
+          onClick={() => setIsExpanded(!isExpanded)}
+        >
+          <h3>📊 Technische Details</h3>
+          <span className={`${styles.expandIcon} ${isExpanded ? styles.expanded : ''}`}>
+            ▼
+          </span>
+        </div>
+        
+        <div className={`${styles.detailsContent} ${isExpanded ? styles.expanded : ''}`}>
+          <div className={styles.infoGrid}>
+            <InfoRow 
+              icon="🆔" 
+              label="Gruppen-ID" 
+              value={
+                <span className={styles.monospace}>
+                  {groupId?.slice(0, 32)}...
+                </span>
+              }
+            />
+            <InfoRow 
+              icon="🔗" 
+              label="Hauptrelay" 
+              value={groupRelay || relay}
+            />
+            <InfoRow 
+              icon="🌐" 
+              label="Backup Relays" 
+              value={`${relays.length} konfiguriert`}
+            />
+          </div>
         </div>
       </div>
     </div>
-
-  </div>
-);
+  );
 }

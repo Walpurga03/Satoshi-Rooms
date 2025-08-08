@@ -622,14 +622,35 @@
 }
 
 // =========================
-// Mobile Responsive
+// Mobile Responsive - Improved
 // =========================
 
 @media (max-width: 768px) {
+  .groupProfileRoot {
+    margin: 0 0.5rem;
+    padding: 0;
+  }
+
+  .collapseHeader {
+    padding: 0.8rem 1rem;
+    margin: 0 -0.5rem;
+  }
+
+  .collapseContent {
+    padding: 0.5rem;
+    margin: 0 -0.5rem;
+  }
+
   .searchContainer {
     flex-direction: column;
     gap: 0.8rem;
     padding: 0.8rem;
+    margin: 0 0.5rem 1rem 0.5rem; // Reduziere äußere Margins
+  }
+
+  .searchInput {
+    padding: 0.7rem 0.8rem;
+    font-size: 0.9em;
   }
 
   .filterSelect {
@@ -639,6 +660,8 @@
   .statsBar {
     gap: 0.5rem;
     font-size: 0.8em;
+    margin: 0 0.5rem 1rem 0.5rem; // Reduziere äußere Margins
+    padding: 0.6rem 0.8rem;
     
     span {
       padding: 0.2rem 0.5rem;
@@ -652,28 +675,279 @@
     width: 100%;
     text-align: center;
   }
+
+  // Message Cards Mobile
+  .messagesContainer {
+    padding: 0 0.5rem; // Reduziere Container Padding
+  }
+
+  .messageCard {
+    margin: 0 0 1rem 0; // Entferne seitliche Margins
+    padding: 1rem; // Reduziere internes Padding
+  }
 }
 
+// =========================
+// Sehr schmale Bildschirme (375px und kleiner)
+// =========================
+
 @media (max-width: 480px) {
+  .groupProfileRoot {
+    margin: 0; // Entferne äußere Margins
+    padding: 0; // Entferne äußeres Padding
+  }
+
+  .collapseHeader {
+    padding: 1rem 0.8rem; // Reduziere Header Padding
+    margin: 0; // Entferne Header Margins
+  }
+
+  .collapseContent {
+    padding: 0.5rem; // Minimales Content Padding
+  }
+
   .searchContainer {
-    margin-bottom: 1rem;
+    margin: 0 0 1rem 0; // Entferne seitliche Margins
+    padding: 0.8rem; // Reduziere Padding
   }
 
   .searchInput {
     padding: 0.6rem 0.8rem;
     font-size: 0.85em;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .filterSelect {
     padding: 0.6rem 0.8rem;
     font-size: 0.85em;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .statsBar {
+    margin: 0 0 1rem 0; // Entferne seitliche Margins
+    padding: 0.5rem 0.6rem; // Minimales Padding
+    gap: 0.3rem;
+    font-size: 0.75em;
+    
+    span {
+      padding: 0.15rem 0.4rem;
+      font-size: 0.8em;
+    }
+  }
+
+  .messagesContainer {
+    padding: 0; // Entferne Container Padding komplett
+  }
+
+  .messageCard {
+    margin: 0 0 0.8rem 0; // Nur bottom margin
+    padding: 0.8rem; // Minimales internes Padding
+    border-radius: 8px; // Kleinere border-radius
+  }
+
+  .messageHeader {
+    padding: 0; // Entferne Header Padding
+    margin-bottom: 0.5rem;
+  }
+
+  .userAvatar {
+    width: 32px; // Kleinere Avatars
+    height: 32px;
+  }
+
+  .avatarPlaceholder {
+    width: 32px;
+    height: 32px;
+    font-size: 0.9em;
+  }
+
+  .userInfo {
+    gap: 0.3rem; // Reduziere Gaps
+  }
+
+  .memberName {
+    font-size: 0.9em;
+  }
+
+  .messageTime {
+    font-size: 0.75em;
+  }
+
+  .messageContent {
+    padding: 0; // Entferne Content Padding
+    font-size: 0.9em;
+    line-height: 1.4;
+  }
+
+  .readMore {
+    font-size: 0.8em;
+    margin-top: 0.3rem;
+  }
+
+  .loadMoreContainer {
+    margin: 1rem 0; // Reduziere Margins
+    padding: 0.8rem; // Reduziere Padding
+  }
+
+  .loadMoreButton {
+    min-width: 100%;
+    padding: 0.8rem 1rem;
+    font-size: 0.9em;
+  }
+
+  .loadMoreInfo {
+    font-size: 0.75em;
+    text-align: center;
   }
 
   .noMessages {
-    padding: 2rem 1rem;
+    margin: 1rem 0; // Reduziere Margins
+    padding: 1.5rem 0.8rem; // Reduziere Padding
   }
 
   .noMessagesIcon {
-    font-size: 2.5rem;
+    font-size: 2rem; // Kleineres Icon
   }
+
+  .noMessagesText {
+    font-size: 1em; // Kleinerer Text
+  }
+
+  .noMessagesSubtext {
+    font-size: 0.8em;
+  }
+}
+
+// =========================
+// Extra schmale Bildschirme (320px - iPhone SE)
+// =========================
+
+@media (max-width: 375px) {
+  .groupProfileRoot {
+    overflow-x: hidden; // Verhindere horizontales Scrollen
+  }
+
+  .collapseHeader {
+    padding: 0.8rem 0.6rem; // Noch weniger Padding
+  }
+
+  .collapseHeadline {
+    font-size: 1.1em; // Kleinere Überschrift
+  }
+
+  .collapseContent {
+    padding: 0.3rem; // Minimales Padding
+  }
+
+  .searchContainer {
+    padding: 0.6rem; // Sehr kleines Padding
+  }
+
+  .searchInput,
+  .filterSelect {
+    padding: 0.5rem 0.6rem; // Kompakte Inputs
+    font-size: 0.8em;
+  }
+
+  .statsBar {
+    padding: 0.4rem 0.5rem;
+    flex-wrap: wrap; // Erlaube Zeilenumbruch
+    
+    span {
+      padding: 0.1rem 0.3rem;
+      font-size: 0.7em;
+      margin: 0.1rem;
+    }
+  }
+
+  .messageCard {
+    padding: 0.6rem; // Sehr kompakt
+    margin-bottom: 0.6rem;
+  }
+
+  .messageHeader {
+    flex-wrap: wrap; // Erlaube Wrap bei sehr schmalen Screens
+  }
+
+  .userAvatar,
+  .avatarPlaceholder {
+    width: 28px; // Noch kleinere Avatars
+    height: 28px;
+    font-size: 0.8em;
+  }
+
+  .memberName {
+    font-size: 0.85em;
+    max-width: 120px; // Begrenze Namensbreite
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .messageTime {
+    font-size: 0.7em;
+  }
+
+  .messageContent {
+    font-size: 0.85em;
+    line-height: 1.3;
+  }
+
+  .loadMoreButton {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.85em;
+    
+    small {
+      display: block; // Stack auf neue Zeile
+      margin-top: 0.2rem;
+      font-size: 0.75em;
+    }
+  }
+}
+
+// =========================
+// Box-sizing für alle Elemente
+// =========================
+
+.groupProfileRoot *,
+.groupProfileRoot *::before,
+.groupProfileRoot *::after {
+  box-sizing: border-box;
+}
+
+// =========================
+// Verhindere horizontales Scrollen
+// =========================
+
+.groupProfileRoot {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.collapseContent {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.messagesContainer {
+  width: 100%;
+  max-width: 100%;
+}
+
+.messageCard {
+  width: 100%;
+  max-width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.messageContent {
+  width: 100%;
+  max-width: 100%;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }

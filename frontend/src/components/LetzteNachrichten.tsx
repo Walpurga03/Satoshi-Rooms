@@ -1,9 +1,9 @@
-import { useEffect, useState, useCallback, useMemo, memo } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { SimplePool } from 'nostr-tools';
 import type { Filter } from 'nostr-tools';
 import styles from './LetzteNachrichten.module.scss';
 
-// === Types bleiben gleich ===
+// === Types ===
 type Props = {
   relay: string;
   profileRelays: string[];
@@ -42,27 +42,6 @@ const PROFILE_RELAYS = [
   'wss://relay.snort.social'
 ];
 
-// === SKELETON KOMPONENTE AUSSERHALB ===
-const SkeletonMessage = memo(() => (
-  <div className={styles.skeletonCard}>
-    <div className={styles.skeletonHeader}>
-      <div className={styles.skeletonAvatar} />
-      <div className={styles.skeletonUserInfo}>
-        <div className={styles.skeletonName} />
-        <div className={styles.skeletonTime} />
-      </div>
-    </div>
-    <div className={styles.skeletonContent}>
-      <div className={styles.skeletonLine} />
-      <div className={styles.skeletonLine} />
-      <div className={styles.skeletonLineShort} />
-    </div>
-  </div>
-));
-
-SkeletonMessage.displayName = 'SkeletonMessage';
-
-// === MAIN KOMPONENTE ===
 export function LetzteNachrichten({ 
   relay, 
   profileRelays, 
@@ -72,7 +51,7 @@ export function LetzteNachrichten({
   autoRefresh = false,
   refreshInterval = 30
 }: Props) {
-  // === State (alle auf oberster Ebene) ===
+  // === State ===
   const [open, setOpen] = useState(true);
   const [messages, setMessages] = useState<GroupMessage[]>([]);
   const [userProfiles, setUserProfiles] = useState<Record<string, UserProfile>>({});
@@ -85,51 +64,48 @@ export function LetzteNachrichten({
   const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'week'>('all');
   const [hasMore, setHasMore] = useState(false);
   const [since, setSince] = useState<number | undefined>(undefined);
-  // NEU: Separate Anzeige-Limit
-  const [displayLimit, setDisplayLimit] = useState(maxMessages);
 
   // === Memoized Values ===
-  // ZUERST: filteredMessages (ohne messageStats dependency)
-  const filteredMessages = useMemo(() => {
-    return messages
-      .filter(message => {
-        const matchesSearch = searchTerm === '' || 
-          message.content.toLowerCase().includes(searchTerm.toLowerCase());
-        
-        const messageDate = new Date(message.created_at * 1000);
-        const today = new Date();
-        const weekAgo = new Date();
-        weekAgo.setDate(today.getDate() - 7);
-        
-        const matchesDate = 
-          dateFilter === 'all' ||
-          (dateFilter === 'today' && messageDate.toDateString() === today.toDateString()) ||
-          (dateFilter === 'week' && messageDate >= weekAgo);
-          
-        return matchesSearch && matchesDate;
-      })
-      .sort((a, b) => b.created_at - a.created_at)
-      .slice(0, displayLimit); // Verwende displayLimit statt maxMessages
-  }, [messages, searchTerm, dateFilter, displayLimit]); // displayLimit als Dependency
-
-  // DANN: messageStats (mit filteredMessages dependency)
   const messageStats = useMemo(() => {
     return {
       total: messages.length,
-      displayed: Math.min(displayLimit, filteredMessages.length),
       today: messages.filter(m => 
         new Date(m.created_at * 1000).toDateString() === new Date().toDateString()
       ).length,
       uniqueUsers: uniquePubkeys.length,
       profilesLoaded: Object.keys(userProfiles).length
     };
-  }, [messages, uniquePubkeys, userProfiles, displayLimit, filteredMessages.length]);
+  }, [messages, uniquePubkeys, userProfiles]);
 
-  // === Callbacks ===
+  const filteredMessages = useMemo(() => {
+    return messages
+      .filter(message => {
+        const matchesSearch = searchTerm === '' || 
+          message.content.toLowerCase().includes(searchTerm.toLowerCase());
+
+        const messageDate = new Date(message.created_at * 1000);
+        const today = new Date();
+        const weekAgo = new Date();
+        weekAgo.setDate(today.getDate() - 7);
+
+        const matchesDate = 
+          dateFilter === 'all' ||
+          (dateFilter === 'today' && messageDate.toDateString() === today.toDateString()) ||
+          (dateFilter === 'week' && messageDate >= weekAgo);
+
+        return matchesSearch && matchesDate;
+      })
+      .sort((a, b) => b.created_at - a.created_at)
+      .slice(0, maxMessages);
+  }, [messages, searchTerm, dateFilter, maxMessages]);
+
+  // === Profile Loading ===
   const loadProfiles = useCallback(async (pubkeys: string[], pool: SimplePool) => {
     if (pubkeys.length === 0) return {};
 
+    console.log('👤 Loading profiles for', pubkeys.length, 'users...');
     setProfilesLoading(true);
+    
     const profilesFilter: Filter = {
       kinds: [0],
       authors: pubkeys,
@@ -140,32 +116,41 @@ export function LetzteNachrichten({
       const allRelays = [...new Set([relay, ...profileRelays, ...PROFILE_RELAYS])];
       const profileEvents = await pool.querySync(allRelays, profilesFilter);
 
+      console.log('📥 Received', profileEvents.length, 'profile events');
+
       const profiles: Record<string, UserProfile> = {};
+      let validProfiles = 0;
+      
       profileEvents.forEach(event => {
         try {
           const profileData = JSON.parse(event.content);
-          profiles[event.pubkey] = profileData;
+          if (profileData && (profileData.name || profileData.display_name)) {
+            profiles[event.pubkey] = profileData;
+            validProfiles++;
+          }
         } catch (e) {
-          console.error('Fehler beim Parsen des Profils:', e);
+          console.warn('Invalid profile data for pubkey:', event.pubkey.slice(0, 8));
         }
       });
 
+      console.log('✅ Loaded', validProfiles, 'valid profiles');
       return profiles;
     } catch (e) {
-      console.error('Fehler beim Laden der Profile:', e);
+      console.error('❌ Error loading profiles:', e);
       return {};
     } finally {
       setProfilesLoading(false);
     }
-  }, [relay]); // Nur relay als dependency
+  }, [relay, profileRelays]);
 
+  // === Main Data Fetching ===
   const fetchGroupData = useCallback(async (loadMore = false) => {
     if (!groupId) return;
-    
+
     let isCancelled = false;
     const pool = new SimplePool();
     const relaysToUse = [relay];
-    
+
     setLoading(true);
     setError(null);
 
@@ -176,8 +161,8 @@ export function LetzteNachrichten({
         limit: 20,
         ...(loadMore && since ? { until: since } : {})
       };
-      
-      console.log('📡 Fetching messages...', { loadMore, since, limit: 20 });
+
+      console.log('📡 Fetching messages...', { loadMore, since });
       
       const groupEvents = await pool.querySync(relaysToUse, groupMessagesFilter);
 
@@ -192,57 +177,30 @@ export function LetzteNachrichten({
         kind: event.kind,
       }));
 
-      console.log('📥 Received messages:', messageData.length);
-
-      if (loadMore) {
-        // Beim Nachladen: Neue Nachrichten anhängen
-        setMessages(prevMessages => {
-          const newMessages = [...prevMessages, ...messageData];
-          // Duplikate entfernen
-          const uniqueMessages = newMessages.filter((msg, index, arr) => 
-            arr.findIndex(m => m.id === msg.id) === index
-          );
-          const sortedMessages = uniqueMessages.sort((a, b) => b.created_at - a.created_at);
-          
-          console.log('📊 Total messages after loading more:', sortedMessages.length);
-          return sortedMessages;
-        });
-        
-        // NICHT das Display-Limit zurücksetzen beim Nachladen!
-      } else {
-        // Erstes Laden: Nachrichten ersetzen
-        console.log('🔄 Initial load, replacing messages');
-        setMessages(messageData);
-        setDisplayLimit(maxMessages); // Nur beim ersten Laden zurücksetzen
-      }
-      
+      setMessages(prevMessages => loadMore ? [...prevMessages, ...messageData] : messageData);
       setLastUpdate(new Date());
 
       const uniqueKeys = Array.from(new Set(groupEvents.map(e => e.pubkey)));
       setUniquePubkeys(uniqueKeys);
 
-      // Profile laden (vereinfacht)
+      // Profile laden
       const newUsers = uniqueKeys.filter(pubkey => !userProfiles[pubkey]);
       if (newUsers.length > 0) {
-        // Profile laden ohne await in der Hauptfunktion
-        loadProfiles(newUsers, pool).then(newProfiles => {
-          if (!isCancelled) {
-            setUserProfiles(prev => ({ ...prev, ...newProfiles }));
-          }
-        });
+        const newProfiles = await loadProfiles(newUsers, pool);
+        if (!isCancelled) {
+          setUserProfiles(prev => ({ ...prev, ...newProfiles }));
+        }
       }
 
-      // Verbesserte hasMore Logik
+      // Pagination
       if (groupEvents.length === 20) {
         setHasMore(true);
         const oldestEvent = [...groupEvents].sort((a, b) => a.created_at - b.created_at)[0];
         if (oldestEvent) {
           setSince(oldestEvent.created_at);
         }
-        console.log('✅ hasMore = true, since set to:', oldestEvent?.created_at);
       } else {
         setHasMore(false);
-        console.log('❌ hasMore = false (received less than 20 messages)');
       }
 
     } catch (e) {
@@ -255,42 +213,12 @@ export function LetzteNachrichten({
       }
       pool.close([...relaysToUse, ...profileRelays, ...PROFILE_RELAYS]);
     }
-  }, [relay, groupId, since, maxMessages, userProfiles, loadProfiles]); // Minimal stabile dependencies
-
-  const loadMoreMessages = useCallback(() => {
-    if (loading) return;
-    
-    console.log('🔄 Load More clicked:', {
-      currentDisplayLimit: displayLimit,
-      totalMessages: messages.length,
-      hasMore
-    });
-    
-    // Prüfe ob wir mehr lokale Nachrichten anzeigen können
-    if (displayLimit < messages.length) {
-      // Zeige mehr von den bereits geladenen Nachrichten
-      const newLimit = Math.min(displayLimit + 20, messages.length);
-      console.log('📈 Erhöhe Display-Limit von', displayLimit, 'auf', newLimit);
-      setDisplayLimit(newLimit);
-      return;
-    }
-    
-    // Wenn alle lokalen Nachrichten angezeigt werden und mehr verfügbar sind
-    if (hasMore) {
-      console.log('📡 Lade weitere Nachrichten vom Server...');
-      fetchGroupData(true).then(() => {
-        // Erhöhe Display-Limit nach dem Laden
-        setDisplayLimit(prev => prev + 20);
-      });
-    }
-  }, [loading, hasMore, displayLimit, messages.length, fetchGroupData]); // fetchGroupData zurück als dependency
+  }, [relay, groupId, userProfiles, loadProfiles, since]);
 
   // === Effects ===
   useEffect(() => {
-    // Initiales Laden nur einmal
     fetchGroupData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reload]); // Nur reload dependency
+  }, [fetchGroupData, reload]);
 
   useEffect(() => {
     if (!autoRefresh) return;
@@ -300,53 +228,23 @@ export function LetzteNachrichten({
     }, refreshInterval * 1000);
 
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoRefresh, refreshInterval]); // Entferne fetchGroupData dependency
+  }, [autoRefresh, refreshInterval, fetchGroupData]);
 
-  // Reset displayLimit nur bei Search/Filter Änderungen
-  useEffect(() => {
-    console.log('🔍 Search/Filter changed, resetting displayLimit to', maxMessages);
-    setDisplayLimit(maxMessages);
-  }, [searchTerm, dateFilter, maxMessages]);
-
-  // === MessageItem Komponente ===
-  const MessageItem = memo(({ message, profile, showDebugInfo }: { 
-    message: GroupMessage; 
-    profile?: UserProfile;
-    showDebugInfo?: boolean;
-  }) => {
+  // === Message Component ===
+  const MessageItem = ({ message }: { message: GroupMessage }) => {
+    const profile = userProfiles[message.pubkey];
     const messageDate = new Date(message.created_at * 1000);
     const isToday = messageDate.toDateString() === new Date().toDateString();
     const [isExpanded, setIsExpanded] = useState(false);
-    
+
     const shortContent = message.content.length > 300 
       ? message.content.slice(0, 300) + "..." 
       : message.content;
 
-    const renderContent = useCallback(() => {
-      let content = isExpanded || message.content.length <= 300 
-        ? message.content 
-        : shortContent;
-
-      // Basic link detection
-      content = content.replace(
-        /(https?:\/\/[^\s]+)/g, 
-        '<a href="$1" target="_blank" rel="noopener noreferrer" class="messageLink">$1</a>'
-      );
-
-      // Basic mention detection
-      content = content.replace(
-        /@([a-zA-Z0-9_]+)/g,
-        '<span class="mentionTag">@$1</span>'
-      );
-
-      return content;
-    }, [message.content, isExpanded, shortContent]);
-
     return (
       <div className={styles.messageCard}>
         <div className={styles.messageHeader}>
-          {profile?.picture ? (
+          {profile?.picture && (
             <img 
               src={profile.picture} 
               alt="Avatar" 
@@ -357,10 +255,6 @@ export function LetzteNachrichten({
                 target.style.display = 'none';
               }}
             />
-          ) : (
-            <div className={styles.avatarPlaceholder}>
-              {profile?.display_name?.[0] || profile?.name?.[0] || '👤'}
-            </div>
           )}
           <div className={styles.userInfo}>
             <span className={styles.memberName}>
@@ -381,39 +275,26 @@ export function LetzteNachrichten({
         <div 
           className={`${styles.messageContent} ${isExpanded ? styles.expanded : ''}`}
           onClick={() => message.content.length > 300 && setIsExpanded(!isExpanded)}
-          dangerouslySetInnerHTML={{ __html: renderContent() }}
-        />
-
-        {!isExpanded && message.content.length > 300 && (
-          <span className={styles.readMore} onClick={() => setIsExpanded(true)}>
-            mehr lesen...
-          </span>
-        )}
+        >
+          {isExpanded || message.content.length <= 300 
+            ? message.content 
+            : <>{shortContent} <span className={styles.readMore}>mehr lesen...</span></>}
+        </div>
 
         {showDebugInfo && (
           <div className={styles.debugInfo}>
             <small>
               ID: {message.id.slice(0, 8)}... | 
               Kind: {message.kind} | 
-              Tags: {message.tags.length} |
-              Size: {new Blob([message.content]).size} bytes
+              Tags: {message.tags.length}
             </small>
           </div>
         )}
       </div>
     );
-  });
+  };
 
-  MessageItem.displayName = 'MessageItem';
-
-  // === Event Handlers ===
-  const handleRefresh = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    fetchGroupData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Keine dependencies
-
-  // === Early Returns für Loading/Error States ===
+  // === Early Returns ===
   if (loading && messages.length === 0) {
     return (
       <div className={styles.loadingContainer}>
@@ -437,15 +318,6 @@ export function LetzteNachrichten({
       </div>
     );
   }
-
-  // === Debug Info ===
-  console.log('🔍 LetzteNachrichten Render:', {
-    totalMessages: messages.length,
-    displayLimit,
-    filteredLength: filteredMessages.length,
-    hasMore,
-    loading
-  });
 
   // === Main Render ===
   return (
@@ -472,7 +344,10 @@ export function LetzteNachrichten({
         
         <div className={styles.headerActions}>
           <button 
-            onClick={handleRefresh}
+            onClick={(e) => {
+              e.stopPropagation();
+              fetchGroupData();
+            }}
             className={styles.refreshButton}
             disabled={loading}
             title="Aktualisieren"
@@ -514,7 +389,7 @@ export function LetzteNachrichten({
 
         {/* Stats */}
         <div className={styles.statsBar}>
-          <span>📊 {messageStats.displayed}/{messageStats.total} Nachrichten</span>
+          <span>📊 {messageStats.total} Nachrichten</span>
           <span>📅 {messageStats.today} heute</span>
           <span>👥 {messageStats.uniqueUsers} User</span>
           <span>🔗 {messageStats.profilesLoaded} Profile</span>
@@ -529,28 +404,14 @@ export function LetzteNachrichten({
         {filteredMessages.length > 0 ? (
           <div className={styles.messagesContainer}>
             {filteredMessages.map(message => (
-              <MessageItem 
-                key={message.id} 
-                message={message}
-                profile={userProfiles[message.pubkey]}
-                showDebugInfo={showDebugInfo}
-              />
+              <MessageItem key={message.id} message={message} />
             ))}
-            
-            {/* Loading Skeletons nur beim ersten Laden */}
-            {loading && messages.length === 0 && (
-              <>
-                <SkeletonMessage />
-                <SkeletonMessage />
-                <SkeletonMessage />
-              </>
+
+            {messages.length > maxMessages && (
+              <div className={styles.moreMessagesHint}>
+                ... und {messages.length - maxMessages} weitere Nachrichten
+              </div>
             )}
-          </div>
-        ) : loading ? (
-          <div className={styles.messagesContainer}>
-            <SkeletonMessage />
-            <SkeletonMessage />
-            <SkeletonMessage />
           </div>
         ) : (
           <div className={styles.noMessages}>
@@ -570,32 +431,16 @@ export function LetzteNachrichten({
           </div>
         )}
 
-        {/* Enhanced Load More Button */}
-        {(displayLimit < messages.length || hasMore) && (
+        {/* Load more button */}
+        {hasMore && (
           <div className={styles.loadMoreContainer}>
             <button 
-              onClick={loadMoreMessages}
+              onClick={() => fetchGroupData(true)}
               className={styles.loadMoreButton}
               disabled={loading}
             >
-              {loading ? (
-                <>
-                  <span className={styles.loadingSpinner}>⏳</span>
-                  Lade weitere Nachrichten...
-                </>
-              ) : (
-                <>
-                  📥 Weitere Nachrichten laden
-                  {displayLimit < messages.length && (
-                    <small> ({messages.length - displayLimit} verfügbar)</small>
-                  )}
-                </>
-              )}
+              {loading ? 'Lädt...' : 'Weitere Nachrichten laden'}
             </button>
-            <div className={styles.loadMoreInfo}>
-              {messageStats.displayed} von {messageStats.total} Nachrichten angezeigt
-              {hasMore && ' (weitere auf Server verfügbar)'}
-            </div>
           </div>
         )}
       </div>

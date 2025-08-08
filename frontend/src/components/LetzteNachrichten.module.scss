@@ -6,13 +6,72 @@
 // =============================
 
 .groupProfileRoot {
+  // Basis Layout
   margin-top: 3.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   font-size: 1.18em;
   box-sizing: border-box;
+  
+  // Mobile-first sizing
   width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  padding: 0 0.5rem;
+  
+  // Lokales box-sizing für alle Kinder
+  *, *::before, *::after {
+    box-sizing: border-box !important;
+  }
+
+  // Verhindere horizontale Overflows
+  .collapseHeader,
+  .collapseContent,
+  .searchContainer,
+  .statsBar,
+  .messagesContainer,
+  .messageCard,
+  .loadMoreContainer {
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+
+  // Text-Breaking für lange Inhalte
+  .messageContent,
+  .memberName,
+  .searchInput,
+  .filterSelect {
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    hyphens: auto !important;
+  }
+
+  // URL-Behandlung
+  .messageContent :global(.messageLink) {
+    word-break: break-all !important;
+    max-width: 100% !important;
+    display: inline-block !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  // Mobile-specific fixes
+  @media (max-width: 375px) {
+    min-width: 0 !important;
+    width: 100% !important;
+    padding: 0 0.1rem !important;
+    
+    .collapseHeader,
+    .collapseContent {
+      min-width: 0 !important;
+      width: 100% !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+    }
+  }
 }
 
 // =========================
@@ -21,7 +80,8 @@
 
 .collapseHeader {
   @include m.card;
-  width: v.$card-width;
+  width: 100%; // GEÄNDERT: Mobile-first
+  max-width: v.$card-width; // HINZUGEFÜGT: Desktop maximum
   padding: 1.6rem 2rem;
   margin-bottom: 0;
   cursor: pointer;
@@ -30,6 +90,7 @@
   justify-content: space-between;
   align-items: center;
   border-radius: 12px 12px 0 0;
+  box-sizing: border-box; // HINZUGEFÜGT
 
   &:hover {
     background: adjust(v.$surface);
@@ -114,7 +175,8 @@
 }
 
 .collapseContent {
-  width: v.$card-width;
+  width: 100%; // GEÄNDERT: Mobile-first
+  max-width: v.$card-width; // HINZUGEFÜGT: Desktop maximum
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
@@ -122,6 +184,7 @@
   border-radius: 0 0 12px 12px;
   border: 1px solid v.$border;
   border-top: none;
+  box-sizing: border-box; // HINZUGEFÜGT
 
   &.open {
     max-height: 2000px;
@@ -308,6 +371,38 @@
   flex-shrink: 0;
 }
 
+.avatarPlaceholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #7ee787;
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9em;
+  font-weight: 600;
+  color: #7ee787;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  
+  // Bessere Fallback-Behandlung
+  &.loading {
+    animation: skeletonPulse 1.5s ease-in-out infinite alternate;
+    
+    &::after {
+      content: '...';
+      animation: dots 1.5s steps(3, end) infinite;
+    }
+  }
+}
+
+@keyframes dots {
+  0%, 33% { content: '.'; }
+  34%, 66% { content: '..'; }
+  67%, 100% { content: '...'; }
+}
+
 .userInfo {
   display: flex;
   align-items: center;
@@ -386,25 +481,26 @@
       opacity: 1;
     }
   }
+}
+
+.readMore {
+  color: v.$primary;
+  cursor: pointer;
+  font-weight: 500;
+  background: rgba(v.$primary, 0.1);
+  padding: 0.2em 0.5em;
+  border-radius: 4px;
+  margin-top: 0.5rem;
+  display: inline-block;
+  transition: all 0.2s ease;
   
-  .readMore {
-    color: v.$primary;
-    cursor: pointer;
-    font-weight: 500;
-    background: rgba(v.$primary, 0.1);
-    padding: 0.2em 0.5em;
-    border-radius: 4px;
-    margin-left: 0.3em;
-    transition: all 0.2s ease;
-    
-    &:hover {
-      background: rgba(v.$primary, 0.2);
-      transform: translateY(-1px);
-    }
-    
-    &:active {
-      transform: translateY(0);
-    }
+  &:hover {
+    background: rgba(v.$primary, 0.2);
+    transform: translateY(-1px);
+  }
+  
+  &:active {
+    transform: translateY(0);
   }
 }
 
@@ -477,7 +573,6 @@
 
 .loadingSpinner {
   animation: spin 1s linear infinite;
-  font-size: 1.2em;
 }
 
 @keyframes spin {
@@ -493,29 +588,29 @@
 }
 
 // =========================
-// Saubere Message Cards ohne Actions
+// Saubere Message Cards ohne Actions - DOPPELT!
 // =========================
 
-.messageCard {
-  margin-bottom: 1.4rem;
-  padding: 1.4rem 1.7rem;
-  background: #181825;
-  border-radius: 12px;
-  border-left: 4px solid #7ee787;
-  transition: all 0.2s ease;
-  animation: slideInUp 0.3s ease-out;
-
-  &:hover {
-    background: #1e1e2e;
-    border-left-color: #56d364;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(#7ee787, 0.2);
-  }
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-}
+// .messageCard {
+//   margin-bottom: 1.4rem;
+//   padding: 1.4rem 1.7rem;
+//   background: #181825;
+//   border-radius: 12px;
+//   border-left: 4px solid #7ee787;
+//   transition: all 0.2s ease;
+//   animation: slideInUp 0.3s ease-out;
+//
+//   &:hover {
+//     background: #1e1e2e;
+//     border-left-color: #56d364;
+//     transform: translateY(-1px);
+//     box-shadow: 0 4px 12px rgba(#7ee787, 0.2);
+//   }
+//
+//   &:last-child {
+//     margin-bottom: 0;
+//   }
+// }
 
 // =========================
 // No Messages State
@@ -569,8 +664,6 @@
 }
 
 .loadingSpinner {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
   animation: spin 1s linear infinite;
 }
 
@@ -622,332 +715,664 @@
 }
 
 // =========================
-// Mobile Responsive - Improved
+// Skeleton Loading Styles
+// =========================
+
+.skeletonCard {
+  margin-bottom: 1.4rem;
+  padding: 1.4rem 1.7rem;
+  background: #181825;
+  border-radius: 12px;
+  border-left: 4px solid rgba(#7ee787, 0.3);
+  animation: skeletonPulse 1.5s ease-in-out infinite alternate;
+}
+
+.skeletonHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+
+.skeletonAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(#7ee787, 0.2);
+  animation: skeletonPulse 1.5s ease-in-out infinite alternate;
+}
+
+.skeletonUserInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.skeletonName {
+  height: 1.1em;
+  width: 120px;
+  background: rgba(#7ee787, 0.2);
+  border-radius: 4px;
+  animation: skeletonPulse 1.5s ease-in-out infinite alternate;
+}
+
+.skeletonTime {
+  height: 0.85em;
+  width: 60px;
+  background: rgba(v.$text-muted, 0.2);
+  border-radius: 4px;
+  animation: skeletonPulse 1.5s ease-in-out infinite alternate;
+}
+
+.skeletonContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.skeletonLine {
+  height: 1.1em;
+  background: rgba(v.$text, 0.1);
+  border-radius: 4px;
+  animation: skeletonPulse 1.5s ease-in-out infinite alternate;
+  
+  &:nth-child(1) { width: 100%; }
+  &:nth-child(2) { width: 85%; }
+}
+
+.skeletonLineShort {
+  height: 1.1em;
+  width: 60%;
+  background: rgba(v.$text, 0.1);
+  border-radius: 4px;
+  animation: skeletonPulse 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes skeletonPulse {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+// =========================
+// Debug Info Style
+// =========================
+
+.debugInfo {
+  margin-top: 0.8rem;
+  padding: 0.5rem;
+  background: rgba(v.$surface, 0.3);
+  border-radius: 4px;
+  border: 1px solid rgba(v.$border, 0.2);
+  font-family: 'Courier New', monospace;
+  
+  small {
+    color: v.$text-muted;
+    font-size: 0.75em;
+  }
+}
+
+// =========================
+// Mobile Responsive - Anti-Overflow bis 350px
 // =========================
 
 @media (max-width: 768px) {
   .groupProfileRoot {
-    margin: 0 0.5rem;
-    padding: 0;
+    margin-top: 2rem;
+    padding: 0 0.3rem;
+    font-size: 1em;
+    
+    // WICHTIG: Verhindere horizontale Overflows
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
   }
 
   .collapseHeader {
-    padding: 0.8rem 1rem;
-    margin: 0 -0.5rem;
+    width: 100% !important;
+    max-width: calc(100vw - 0.6rem) !important; // Abzug für padding
+    padding: 1rem 0.8rem;
+    margin: 0 !important;
+    font-size: 0.9em;
+    box-sizing: border-box !important;
+  }
+
+  .collapseHeadline {
+    font-size: 1.2em;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    overflow: hidden !important;
+  }
+
+  .messageCount {
+    font-size: 0.7em;
+    padding: 0.1em 0.4em;
+    flex-shrink: 0;
   }
 
   .collapseContent {
+    width: 100% !important;
+    max-width: calc(100vw - 0.6rem) !important;
     padding: 0.5rem;
-    margin: 0 -0.5rem;
+    margin: 0 !important;
+    box-sizing: border-box !important;
   }
 
   .searchContainer {
     flex-direction: column;
     gap: 0.8rem;
     padding: 0.8rem;
-    margin: 0 0.5rem 1rem 0.5rem; // Reduziere äußere Margins
-  }
-
-  .searchInput {
-    padding: 0.7rem 0.8rem;
-    font-size: 0.9em;
-  }
-
-  .filterSelect {
-    min-width: unset;
-  }
-
-  .statsBar {
-    gap: 0.5rem;
-    font-size: 0.8em;
-    margin: 0 0.5rem 1rem 0.5rem; // Reduziere äußere Margins
-    padding: 0.6rem 0.8rem;
-    
-    span {
-      padding: 0.2rem 0.5rem;
-      font-size: 0.85em;
-    }
-  }
-
-  .lastUpdate {
-    margin-left: 0;
-    order: -1;
-    width: 100%;
-    text-align: center;
-  }
-
-  // Message Cards Mobile
-  .messagesContainer {
-    padding: 0 0.5rem; // Reduziere Container Padding
-  }
-
-  .messageCard {
-    margin: 0 0 1rem 0; // Entferne seitliche Margins
-    padding: 1rem; // Reduziere internes Padding
-  }
-}
-
-// =========================
-// Sehr schmale Bildschirme (375px und kleiner)
-// =========================
-
-@media (max-width: 480px) {
-  .groupProfileRoot {
-    margin: 0; // Entferne äußere Margins
-    padding: 0; // Entferne äußeres Padding
-  }
-
-  .collapseHeader {
-    padding: 1rem 0.8rem; // Reduziere Header Padding
-    margin: 0; // Entferne Header Margins
-  }
-
-  .collapseContent {
-    padding: 0.5rem; // Minimales Content Padding
-  }
-
-  .searchContainer {
-    margin: 0 0 1rem 0; // Entferne seitliche Margins
-    padding: 0.8rem; // Reduziere Padding
-  }
-
-  .searchInput {
-    padding: 0.6rem 0.8rem;
-    font-size: 0.85em;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  .filterSelect {
-    padding: 0.6rem 0.8rem;
-    font-size: 0.85em;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  .statsBar {
-    margin: 0 0 1rem 0; // Entferne seitliche Margins
-    padding: 0.5rem 0.6rem; // Minimales Padding
-    gap: 0.3rem;
-    font-size: 0.75em;
-    
-    span {
-      padding: 0.15rem 0.4rem;
-      font-size: 0.8em;
-    }
-  }
-
-  .messagesContainer {
-    padding: 0; // Entferne Container Padding komplett
-  }
-
-  .messageCard {
-    margin: 0 0 0.8rem 0; // Nur bottom margin
-    padding: 0.8rem; // Minimales internes Padding
-    border-radius: 8px; // Kleinere border-radius
-  }
-
-  .messageHeader {
-    padding: 0; // Entferne Header Padding
-    margin-bottom: 0.5rem;
-  }
-
-  .userAvatar {
-    width: 32px; // Kleinere Avatars
-    height: 32px;
-  }
-
-  .avatarPlaceholder {
-    width: 32px;
-    height: 32px;
-    font-size: 0.9em;
-  }
-
-  .userInfo {
-    gap: 0.3rem; // Reduziere Gaps
-  }
-
-  .memberName {
-    font-size: 0.9em;
-  }
-
-  .messageTime {
-    font-size: 0.75em;
-  }
-
-  .messageContent {
-    padding: 0; // Entferne Content Padding
-    font-size: 0.9em;
-    line-height: 1.4;
-  }
-
-  .readMore {
-    font-size: 0.8em;
-    margin-top: 0.3rem;
-  }
-
-  .loadMoreContainer {
-    margin: 1rem 0; // Reduziere Margins
-    padding: 0.8rem; // Reduziere Padding
-  }
-
-  .loadMoreButton {
-    min-width: 100%;
-    padding: 0.8rem 1rem;
-    font-size: 0.9em;
-  }
-
-  .loadMoreInfo {
-    font-size: 0.75em;
-    text-align: center;
-  }
-
-  .noMessages {
-    margin: 1rem 0; // Reduziere Margins
-    padding: 1.5rem 0.8rem; // Reduziere Padding
-  }
-
-  .noMessagesIcon {
-    font-size: 2rem; // Kleineres Icon
-  }
-
-  .noMessagesText {
-    font-size: 1em; // Kleinerer Text
-  }
-
-  .noMessagesSubtext {
-    font-size: 0.8em;
-  }
-}
-
-// =========================
-// Extra schmale Bildschirme (320px - iPhone SE)
-// =========================
-
-@media (max-width: 375px) {
-  .groupProfileRoot {
-    overflow-x: hidden; // Verhindere horizontales Scrollen
-  }
-
-  .collapseHeader {
-    padding: 0.8rem 0.6rem; // Noch weniger Padding
-  }
-
-  .collapseHeadline {
-    font-size: 1.1em; // Kleinere Überschrift
-  }
-
-  .collapseContent {
-    padding: 0.3rem; // Minimales Padding
-  }
-
-  .searchContainer {
-    padding: 0.6rem; // Sehr kleines Padding
+    margin: 0 0 1rem 0;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   .searchInput,
   .filterSelect {
-    padding: 0.5rem 0.6rem; // Kompakte Inputs
-    font-size: 0.8em;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0.7rem 0.8rem;
+    font-size: 0.9em;
+    box-sizing: border-box !important;
+    border: 1px solid rgba(v.$border, 0.3);
   }
 
   .statsBar {
-    padding: 0.4rem 0.5rem;
-    flex-wrap: wrap; // Erlaube Zeilenumbruch
+    gap: 0.4rem;
+    font-size: 0.75em;
+    margin: 0 0 1rem 0;
+    padding: 0.6rem 0.5rem;
+    width: 100% !important;
+    box-sizing: border-box !important;
     
     span {
-      padding: 0.1rem 0.3rem;
-      font-size: 0.7em;
-      margin: 0.1rem;
+      padding: 0.2rem 0.4rem;
+      font-size: 0.8em;
+      flex-shrink: 0;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      white-space: nowrap !important;
     }
   }
 
+  .messagesContainer {
+    padding: 0;
+    max-height: 500px;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
   .messageCard {
-    padding: 0.6rem; // Sehr kompakt
-    margin-bottom: 0.6rem;
+    margin: 0 0 1rem 0;
+    padding: 0.8rem;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+  }
+
+  .loadMoreContainer {
+    margin: 1rem 0;
+    padding: 0.8rem;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .loadMoreButton {
+    width: 100% !important;
+    min-width: unset !important;
+    max-width: 100% !important;
+    padding: 0.8rem 1rem;
+    font-size: 0.9em;
+    box-sizing: border-box !important;
+  }
+}
+
+// =========================
+// Schmale Bildschirme (480px und kleiner)
+// =========================
+
+@media (max-width: 480px) {
+  .groupProfileRoot {
+    margin-top: 1rem;
+    padding: 0 0.2rem !important; // Reduziertes Padding
+    font-size: 0.9em;
+    
+    // EXTRA Anti-Overflow
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+  }
+
+  .collapseHeader {
+    padding: 0.8rem 0.6rem;
+    border-radius: 8px 8px 0 0;
+    max-width: calc(100vw - 0.4rem) !important;
+    
+    // Verhindere Overflow in Header
+    overflow: hidden !important;
+  }
+
+  .collapseHeadline {
+    font-size: 1.1em;
+    gap: 0.4rem;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .headerActions {
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .refreshButton {
+    font-size: 1em;
+    padding: 0.3em;
+    flex-shrink: 0;
+  }
+
+  .collapseContent {
+    padding: 0.3rem;
+    border-radius: 0 0 8px 8px;
+    max-width: calc(100vw - 0.4rem) !important;
+  }
+
+  .searchContainer {
+    padding: 0.6rem;
+    margin: 0 0 0.8rem 0;
+    max-width: 100% !important;
+  }
+
+  .searchInput,
+  .filterSelect {
+    padding: 0.6rem;
+    font-size: 0.85em;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .statsBar {
+    padding: 0.4rem;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 100% !important;
+    
+    span {
+      padding: 0.15rem 0.3rem;
+      font-size: 0.7em;
+      margin: 0.1rem;
+      max-width: calc(50% - 0.2rem) !important; // Maximal halbe Breite
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+  }
+
+  .lastUpdate {
+    order: -1;
+    width: 100% !important;
+    max-width: 100% !important;
+    text-align: center;
+    margin: 0 0 0.3rem 0;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .messageCard {
+    padding: 0.6rem;
+    margin-bottom: 0.8rem;
+    border-radius: 8px;
+    max-width: 100% !important;
   }
 
   .messageHeader {
-    flex-wrap: wrap; // Erlaube Wrap bei sehr schmalen Screens
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    overflow: hidden !important;
   }
 
   .userAvatar,
   .avatarPlaceholder {
-    width: 28px; // Noch kleinere Avatars
-    height: 28px;
+    width: 30px;
+    height: 30px;
     font-size: 0.8em;
+    flex-shrink: 0;
+  }
+
+  .userInfo {
+    min-width: 0 !important;
+    flex: 1;
+    overflow: hidden !important;
   }
 
   .memberName {
-    font-size: 0.85em;
-    max-width: 120px; // Begrenze Namensbreite
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 0.9em;
+    max-width: 140px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .messageTime {
+    font-size: 0.75em;
+    flex-shrink: 0;
     white-space: nowrap;
+  }
+
+  .messageContent {
+    font-size: 0.9em;
+    line-height: 1.4;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+    hyphens: auto !important;
+  }
+
+  .loadMoreButton {
+    padding: 0.7rem;
+    font-size: 0.85em;
+    max-width: 100% !important;
+  }
+
+  .noMessages {
+    padding: 1.5rem 0.8rem;
+    margin: 1rem 0;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .noMessagesIcon {
+    font-size: 2.5rem;
+  }
+}
+
+// =========================
+// Extra schmale Bildschirme (375px und kleiner)
+// =========================
+
+@media (max-width: 375px) {
+  .groupProfileRoot {
+    padding: 0 0.1rem !important; // Minimalstes Padding
+    margin-top: 0.5rem;
+    
+    // ULTIMATE Anti-Overflow
+    width: 100% !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  .collapseHeader {
+    padding: 0.6rem 0.4rem;
+    max-width: calc(100vw - 0.2rem) !important;
+    
+    // Titel-Bereich kompakter
+    gap: 0.3rem;
+  }
+
+  .collapseHeadline {
+    font-size: 1em;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    min-width: 0;
+    
+    // Mehr aggressive Text-Kürzung
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .messageCount {
+    font-size: 0.65em;
+    padding: 0.1em 0.3em;
+    flex-shrink: 0;
+  }
+
+  .collapseContent {
+    padding: 0.2rem;
+    max-width: calc(100vw - 0.2rem) !important;
+  }
+
+  .searchContainer {
+    padding: 0.4rem;
+    max-width: 100% !important;
+  }
+
+  .searchInput,
+  .filterSelect {
+    padding: 0.5rem;
+    font-size: 0.8em;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .statsBar {
+    padding: 0.3rem;
+    gap: 0.2rem;
+    max-width: 100% !important;
+    
+    span {
+      padding: 0.1rem 0.25rem;
+      font-size: 0.65em;
+      margin: 0.05rem;
+      
+      // WICHTIG: Begrenzte Breite für Stats
+      max-width: calc(33% - 0.1rem) !important; // Maximal ein Drittel
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      white-space: nowrap !important;
+    }
+  }
+
+  .messageCard {
+    padding: 0.5rem;
+    margin-bottom: 0.6rem;
+    max-width: 100% !important;
+  }
+
+  .userAvatar,
+  .avatarPlaceholder {
+    width: 26px;
+    height: 26px;
+    font-size: 0.7em;
+    flex-shrink: 0;
+  }
+
+  .memberName {
+    font-size: 0.8em;
+    max-width: 100px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
   }
 
   .messageTime {
     font-size: 0.7em;
+    flex-shrink: 0;
   }
 
   .messageContent {
-    font-size: 0.85em;
+    font-size: 0.8em;
     line-height: 1.3;
+    
+    // EXTRA Text-Breaking
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+    hyphens: auto !important;
+    white-space: pre-wrap !important;
   }
 
   .loadMoreButton {
-    padding: 0.6rem 0.8rem;
-    font-size: 0.85em;
+    padding: 0.6rem;
+    font-size: 0.8em;
+    width: 100% !important;
+    max-width: 100% !important;
     
     small {
-      display: block; // Stack auf neue Zeile
+      display: block;
       margin-top: 0.2rem;
-      font-size: 0.75em;
+      font-size: 0.7em;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
     }
+  }
+
+  .loadMoreInfo {
+    font-size: 0.7em;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
   }
 }
 
 // =========================
-// Box-sizing für alle Elemente
+// ULTRA schmale Bildschirme (350px und kleiner) - NEU!
 // =========================
 
-.groupProfileRoot *,
-.groupProfileRoot *::before,
-.groupProfileRoot *::after {
-  box-sizing: border-box;
-}
+@media (max-width: 350px) {
+  .groupProfileRoot {
+    padding: 0 0.05rem !important; // Absolut minimales Padding
+    margin-top: 0.3rem;
+    font-size: 0.85em; // Kleinere Basis-Schrift
+    
+    // NUCLEAR Anti-Overflow
+    width: 100% !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    overflow-x: hidden !important;
+  }
 
-// =========================
-// Verhindere horizontales Scrollen
-// =========================
+  .collapseHeader {
+    padding: 0.5rem 0.3rem;
+    max-width: calc(100vw - 0.1rem) !important;
+    
+    // Noch kompakter
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.2rem;
+  }
 
-.groupProfileRoot {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;
-}
+  .collapseHeadline {
+    font-size: 0.9em;
+    gap: 0.2rem;
+    
+    // Breche Titel wenn nötig
+    flex-basis: 100%;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
 
-.collapseContent {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;
-}
+  .messageCount {
+    font-size: 0.6em;
+    padding: 0.05em 0.2em;
+  }
 
-.messagesContainer {
-  width: 100%;
-  max-width: 100%;
-}
+  .headerActions {
+    flex-shrink: 0;
+    gap: 0.2rem;
+  }
 
-.messageCard {
-  width: 100%;
-  max-width: 100%;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-}
+  .collapseContent {
+    padding: 0.15rem;
+    max-width: calc(100vw - 0.1rem) !important;
+  }
 
-.messageContent {
-  width: 100%;
-  max-width: 100%;
-  word-break: break-word;
-  overflow-wrap: break-word;
+  .searchContainer {
+    padding: 0.3rem;
+    margin: 0 0 0.5rem 0;
+    
+    // Stack inputs komplett
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .searchInput,
+  .filterSelect {
+    padding: 0.4rem;
+    font-size: 0.75em;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .statsBar {
+    padding: 0.2rem;
+    gap: 0.1rem;
+    
+    // Noch kleinere Stats
+    font-size: 0.6em;
+    
+    span {
+      padding: 0.05rem 0.15rem;
+      font-size: 0.9em;
+      margin: 0.02rem;
+      
+      // Maximal Viertel-Breite
+      max-width: calc(25% - 0.05rem) !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+  }
+
+  .lastUpdate {
+    font-size: 0.7em;
+    width: 100% !important;
+    margin: 0.2rem 0;
+  }
+
+  .messageCard {
+    padding: 0.4rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .userAvatar,
+  .avatarPlaceholder {
+    width: 24px;
+    height: 24px;
+    font-size: 0.65em;
+  }
+
+  .memberName {
+    font-size: 0.75em;
+    max-width: 80px !important; // Noch kürzer
+  }
+
+  .messageTime {
+    font-size: 0.65em;
+  }
+
+  .messageContent {
+    font-size: 0.75em;
+    line-height: 1.2;
+  }
+
+  .loadMoreButton {
+    padding: 0.5rem;
+    font-size: 0.75em;
+    
+    // Vereinfache Button-Text
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .noMessages {
+    padding: 1rem 0.5rem;
+    margin: 0.5rem 0;
+    
+    .noMessagesIcon {
+      font-size: 2rem;
+    }
+    
+    .noMessagesText {
+      font-size: 0.9em;
+    }
+    
+    .noMessagesSubtext {
+      font-size: 0.75em;
+    }
+  }
 }

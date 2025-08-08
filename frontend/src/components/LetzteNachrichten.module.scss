@@ -129,35 +129,112 @@
 }
 
 // =========================
+// Search Container & Filter
+// =========================
+
+.searchContainer {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: rgba(v.$surface, 0.3);
+  border-radius: 8px;
+  border: 1px solid rgba(v.$border, 0.2);
+}
+
+.searchInput {
+  flex: 1;
+  padding: 0.8rem 1rem;
+  background: v.$surface;
+  border: 1px solid rgba(v.$border, 0.3);
+  border-radius: 6px;
+  color: v.$text;
+  font-size: 0.9em;
+  transition: all 0.2s ease;
+
+  &::placeholder {
+    color: v.$text-muted;
+    opacity: 0.7;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: v.$primary;
+    box-shadow: 0 0 0 2px rgba(v.$primary, 0.2);
+    background: rgba(v.$surface, 0.9);
+  }
+
+  &:hover {
+    border-color: rgba(v.$primary, 0.5);
+  }
+}
+
+.filterSelect {
+  padding: 0.8rem 1rem;
+  background: v.$surface;
+  border: 1px solid rgba(v.$border, 0.3);
+  border-radius: 6px;
+  color: v.$text;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 150px;
+
+  &:focus {
+    outline: none;
+    border-color: v.$primary;
+    box-shadow: 0 0 0 2px rgba(v.$primary, 0.2);
+  }
+
+  &:hover {
+    border-color: rgba(v.$primary, 0.5);
+  }
+
+  option {
+    background: v.$surface;
+    color: v.$text;
+    padding: 0.5rem;
+  }
+}
+
+// =========================
 // Stats Bar
 // =========================
 
 .statsBar {
   display: flex;
-  flex-wrap: wrap;
   gap: 1rem;
-  padding: 1.2rem 2rem;
-  background: linear-gradient(135deg, #181825 0%, #232136 100%);
-  border-bottom: 1px solid v.$border;
-  font-size: 0.9em;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding: 0.8rem 1rem;
+  background: linear-gradient(135deg, rgba(v.$primary, 0.1), rgba(v.$accent, 0.1));
+  border-radius: 8px;
+  border: 1px solid rgba(v.$primary, 0.2);
+  font-size: 0.85em;
   color: v.$text-muted;
 
   span {
     display: flex;
     align-items: center;
     gap: 0.3rem;
-    padding: 0.3em 0.6em;
-    background: v.$surface;
-    border-radius: 8px;
-    border: 1px solid v.$border;
-    font-weight: 500;
+    padding: 0.3rem 0.6rem;
+    background: rgba(v.$surface, 0.5);
+    border-radius: 15px;
+    border: 1px solid rgba(v.$border, 0.2);
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(v.$surface, 0.8);
+      transform: translateY(-1px);
+    }
   }
 }
 
 .lastUpdate {
-  margin-left: auto;
-  font-style: italic;
   color: v.$text-muted;
+  font-style: italic;
+  margin-left: auto;
 }
 
 // =========================
@@ -200,14 +277,14 @@
   background: #181825;
   border-radius: 12px;
   border-left: 4px solid #7ee787;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
-  position: relative;
+  animation: slideInUp 0.3s ease-out;
 
   &:hover {
+    background: #1e1e2e;
+    border-left-color: #56d364;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    border-left-color: adjust(#7ee787);
+    box-shadow: 0 4px 12px rgba(#7ee787, 0.2);
   }
 
   &:last-child {
@@ -348,283 +425,153 @@
   border-radius: 4px;
 }
 
-// Aktionsbuttons unter jeder Nachricht
-.messageActions {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 1rem;
-  opacity: 0;
-  transform: translateY(5px);
-  transition: all 0.3s ease;
-  
-  .messageCard:hover & {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.actionButton {
-  background: rgba(v.$primary-dark, 0.5);
-  border: 1px solid v.$border;
-  font-size: 1em;
-  cursor: pointer;
-  padding: 0.4em 0.6em;
-  border-radius: 6px;
-  color: v.$text;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background: rgba(v.$primary, 0.2);
-    transform: translateY(-2px);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  }
-  
-  &:active {
-    transform: translateY(0);
-  }
-}
-
 // =========================
 // Load More Button - VERBESSERT
 // =========================
 
 .loadMoreContainer {
-  padding: 1.5rem 2rem;
   display: flex;
-  justify-content: center;
-  border-top: 1px solid v.$border;
-  background: linear-gradient(to bottom, transparent, rgba(v.$primary-dark, 0.15));
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: rgba(v.$surface, 0.5);
+  border-radius: 12px;
+  border: 1px solid rgba(v.$border, 0.2);
 }
 
 .loadMoreButton {
-  background: rgba(v.$primary, 0.15);
-  color: v.$primary;
-  border: 1px solid v.$primary;
-  border-radius: 8px;
+  background: linear-gradient(135deg, v.$primary, v.$accent);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 25px;
+  font-size: 1em;
   font-weight: 600;
-  padding: 0.8rem 1.5rem;
   cursor: pointer;
-  transition: all 0.25s ease;
-  position: relative;
-  overflow: hidden;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-      90deg, 
-      transparent, 
-      rgba(v.$primary, 0.1), 
-      transparent
-    );
-    transition: all 0.5s ease;
-  }
-  
-  &:hover {
-    background: rgba(v.$primary, 0.3);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 250px;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(v.$primary, 0.3);
+
+  &:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(v.$primary, 0.2);
-    
-    &::before {
-      left: 100%;
-    }
+    box-shadow: 0 6px 20px rgba(v.$primary, 0.4);
+    background: linear-gradient(135deg, v.$accent, v.$primary);
   }
-  
-  &:active {
+
+  &:active:not(:disabled) {
     transform: translateY(0);
-    box-shadow: none;
   }
-  
+
   &:disabled {
-    opacity: 0.6;
+    opacity: 0.7;
     cursor: not-allowed;
     transform: none;
-    box-shadow: none;
-    
-    &::before {
-      display: none;
-    }
   }
 }
 
-// =========================
-// Suchleiste & Filter - NEU
-// =========================
-
-.searchContainer {
-  display: flex;
-  gap: 1rem;
-  padding: 1.5rem 2rem;
-  border-bottom: 1px solid v.$border;
-  background: rgba(v.$primary-dark, 0.3);
+.loadingSpinner {
+  animation: spin 1s linear infinite;
+  font-size: 1.2em;
 }
 
-.searchInput {
-  flex: 1;
-  padding: 0.8rem 1.2rem;
-  background: rgba(v.$surface, 0.8);
-  color: v.$text;
-  border: 1px solid v.$border;
-  border-radius: 8px;
-  font-size: 0.95em;
-  transition: all 0.2s ease;
-  
-  &:focus {
-    outline: none;
-    border-color: v.$primary;
-    box-shadow: 0 0 0 2px rgba(v.$primary, 0.25);
-  }
-  
-  &::placeholder {
-    color: v.$text-muted;
-  }
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-.filterSelect {
-  padding: 0.8rem 1.2rem;
-  padding-right: 2.5rem; // Platz für den Dropdown-Pfeil
-  background: rgba(v.$surface, 0.8);
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a78bfa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 0.8rem center;
-  color: v.$text;
-  border: 1px solid v.$border;
-  border-radius: 8px;
-  font-size: 0.95em;
-  appearance: none;
-  transition: all 0.2s ease;
-  min-width: 160px;
-  cursor: pointer;
-  
-  &:focus {
-    outline: none;
-    border-color: v.$primary;
-    box-shadow: 0 0 0 2px rgba(v.$primary, 0.25);
-  }
-  
-  option {
-    background: v.$surface;
-    color: v.$text;
-  }
-}
-
-// =========================
-// States & Messages
-// =========================
-
-.moreMessagesHint {
-  text-align: center;
-  padding: 1rem;
+.loadMoreInfo {
+  font-size: 0.9em;
   color: v.$text-muted;
+  text-align: center;
   font-style: italic;
-  border-top: 1px solid v.$border;
-  margin-top: 1rem;
 }
+
+// =========================
+// Saubere Message Cards ohne Actions
+// =========================
+
+.messageCard {
+  margin-bottom: 1.4rem;
+  padding: 1.4rem 1.7rem;
+  background: #181825;
+  border-radius: 12px;
+  border-left: 4px solid #7ee787;
+  transition: all 0.2s ease;
+  animation: slideInUp 0.3s ease-out;
+
+  &:hover {
+    background: #1e1e2e;
+    border-left-color: #56d364;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(#7ee787, 0.2);
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// =========================
+// No Messages State
+// =========================
 
 .noMessages {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem 2rem;
+  padding: 3rem 1rem;
   text-align: center;
+  color: v.$text-muted;
+  background: rgba(v.$surface, 0.3);
+  border-radius: 12px;
+  border: 2px dashed rgba(v.$border, 0.3);
+  margin: 2rem 0;
 }
 
 .noMessagesIcon {
-  font-size: 3em;
+  font-size: 3rem;
   margin-bottom: 1rem;
   opacity: 0.6;
 }
 
 .noMessagesText {
-  font-size: 1.3em;
+  font-size: 1.1em;
   font-weight: 600;
   color: v.$text;
   margin-bottom: 0.5rem;
 }
 
 .noMessagesSubtext {
-  font-size: 1em;
+  font-size: 0.9em;
   color: v.$text-muted;
-  margin-bottom: 1.5rem;
+  opacity: 0.8;
 }
 
 // =========================
-// Loading & Error States
+// Loading Container
 // =========================
 
 .loadingContainer {
-  @include m.card;
-  width: v.$card-width;
-  padding: 3rem 2rem;
-  text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  color: v.$text-muted;
 }
 
 .loadingSpinner {
-  font-size: 2em;
-  animation: spin 2s linear infinite;
-}
-
-.errorContainer {
-  @include m.card;
-  width: v.$card-width;
-  padding: 2rem;
-  text-align: center;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-}
-
-.errorMessage {
-  color: #dc2626;
-  font-size: 1.1em;
+  font-size: 1.5rem;
   margin-bottom: 1rem;
-}
-
-.retryButton {
-  background: v.$primary;
-  color: white;
-  border: none;
-  padding: 0.8rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: adjust(v.$primary);
-    transform: translateY(-1px);
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-  }
-}
-
-// =========================
-// Animations
-// =========================
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
+  animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
@@ -633,102 +580,100 @@
 }
 
 // =========================
-// Responsive Design
+// Error Container
+// =========================
+
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+  background: rgba(v.$error, 0.1);
+  border: 1px solid rgba(v.$error, 0.3);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.errorMessage {
+  color: v.$error;
+  font-weight: 600;
+}
+
+.retryButton {
+  padding: 0.8rem 1.5rem;
+  background: v.$error;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: adjust(v.$error, 10%);
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// =========================
+// Mobile Responsive
 // =========================
 
 @media (max-width: 768px) {
-  .groupProfileRoot {
-    margin-top: 2rem;
-    font-size: 1.1em;
+  .searchContainer {
+    flex-direction: column;
+    gap: 0.8rem;
+    padding: 0.8rem;
   }
 
-  .collapseHeader,
-  .collapseContent {
-    width: calc(100vw - 2rem);
-  }
-
-  .collapseHeader {
-    padding: 1.2rem 1.5rem;
-  }
-
-  .messagesContainer {
-    padding: 1rem 1.5rem;
-    max-height: 400px;
-  }
-
-  .messageCard {
-    padding: 1rem 1.2rem;
+  .filterSelect {
+    min-width: unset;
   }
 
   .statsBar {
-    padding: 1rem 1.5rem;
+    gap: 0.5rem;
     font-size: 0.8em;
     
     span {
-      padding: 0.2em 0.4em;
+      padding: 0.2rem 0.5rem;
+      font-size: 0.85em;
     }
   }
 
-  .userAvatar {
-    width: 28px;
-    height: 28px;
-  }
-
-  .memberName {
-    font-size: 1em;
-  }
-  
-  .searchContainer {
-    padding: 1rem 1.5rem;
-    flex-direction: column;
-  }
-  
-  .searchInput, 
-  .filterSelect {
+  .lastUpdate {
+    margin-left: 0;
+    order: -1;
     width: 100%;
-    padding: 0.7rem 1rem;
-  }
-  
-  .messageActions {
-    margin-top: 0.8rem;
-    
-    // Immer sichtbar auf kleinen Geräten
-    opacity: 1;
-    transform: none;
-  }
-  
-  .actionButton {
-    padding: 0.3em 0.5em;
-  }
-  
-  .loadMoreContainer {
-    padding: 1rem 1.5rem;
-  }
-  
-  .loadMoreButton {
-    width: 100%;
-    padding: 0.7rem 1rem;
+    text-align: center;
   }
 }
 
 @media (max-width: 480px) {
-  .statsBar {
-    flex-direction: column;
-    gap: 0.5rem;
-    
-    span {
-      justify-content: center;
-    }
+  .searchContainer {
+    margin-bottom: 1rem;
   }
 
-  .messageHeader {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
+  .searchInput {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.85em;
   }
 
-  .messageTime {
-    margin-left: 0;
-    align-self: flex-end;
+  .filterSelect {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.85em;
+  }
+
+  .noMessages {
+    padding: 2rem 1rem;
+  }
+
+  .noMessagesIcon {
+    font-size: 2.5rem;
   }
 }
